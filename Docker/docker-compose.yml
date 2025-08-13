@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    container_name: db_postgres
+    
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db_scraping_anime
+    volumes:
+      - db-store:/var/lib/postgresql/data
+      - ../DB/DDL:/docker-entrypoint-initdb.d
+
+volumes:
+  db-store:
