@@ -1,5 +1,5 @@
 import { CospaScraper } from '@/infrastructure/scraper/CospaScraper.js';
-import { ProductsRepository } from '@/infrastructure/repository/ProductsRepository.js';
+import { ProductsRepository } from 'app_common';
 import { CommonScraper } from '@/infrastructure/scraper/CommonScraper.js';
 import { logger } from 'app_common';
 

@@ -5,10 +5,11 @@
     "resolveJsonModule": true,
     "target": "esnext",
     "baseUrl": "./",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"],
     },
-    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

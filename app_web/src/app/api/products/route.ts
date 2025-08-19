@@ -1,11 +1,22 @@
 // /src/app/api/products/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { findAllProducts } from '../../../infrastructure/db/productsTable';
+import { findAllFromCache } from '@/infrastructure/repository/CachedProductRepository';
+import { ProductModel, ProductsRepository } from 'app_common';
 
 export async function GET(request: NextRequest) {
     try {
-        const products = await findAllProducts();
-        return NextResponse.json(products);
+        const productsFromCache: ProductModel[] = await findAllFromCache();
+        if (productsFromCache.length !== 0) {
+            return NextResponse.json(productsFromCache);
+        }
+        
+        const repository = new ProductsRepository();
+        const productsFromDB: ProductModel[] = await repository.findAll();
+        if (productsFromDB.length === 0) {
+            return NextResponse.json({ message: '商品データが見つかりませんでした' }, { status: 404 });
+        } else {
+            return NextResponse.json(productsFromDB);
+        }
     } catch (error) {
         return NextResponse.json(
             { error: '商品データの取得に失敗しました' },

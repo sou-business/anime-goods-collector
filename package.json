@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": [
+    "app_common",
+    "app_batch",
+    "app_web"
+  ]
+}

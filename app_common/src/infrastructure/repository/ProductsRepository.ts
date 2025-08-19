@@ -1,7 +1,7 @@
-import { ProductModel } from "app_common";
-import { findAllProducts, createProducts, deleteProducts} from  '../db/productsTable.js';
-import type { Prisma, Product } from '@prisma/client';
-import type { IProductRepository } from "app_common";
+import { IProductRepository } from "@/domain/repository/IProductRepository.js";
+import { ProductModel } from "@/domain/model/ProductModel.js";
+import { Prisma, Product } from "@prisma/client"
+import { findAllProducts, createProducts, deleteProducts } from "@/infrastructure/db/productsTable.js";
 
 export class ProductsRepository implements IProductRepository {
 

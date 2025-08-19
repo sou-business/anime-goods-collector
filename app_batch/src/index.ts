@@ -21,6 +21,9 @@ async function main() {
 
   // スケジューラー起動
   logger.info(`📅 スケジューラー起動: ${config.schedule} (${config.timezone})`);
+
+  // 起動直後に一度実行
+  await cospaScrapingJob();
   
   cron.schedule(config.schedule, async () => {
     logger.info(`⏰ ${new Date().toISOString()} - ジョブ開始`);

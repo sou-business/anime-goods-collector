@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "app_web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,10 +10,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.13.0",
-    "app_common": "file:../app_common",
+    "app_common": "*",
     "next": "15.4.6",
-    "prisma": "^6.13.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
@@ -38,5 +36,9 @@
     "tsx": "^4.20.3",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0"
+  },
+  "optionalDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "^4",
+    "lightningcss-linux-x64-gnu": "^1"
   }
 }

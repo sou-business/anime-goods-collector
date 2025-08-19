@@ -1,0 +1,46 @@
+# Node.js 20 Debian ベース
+FROM node:20-bullseye
+
+# 作業ディレクトリ設定
+WORKDIR /app
+
+# ルートの package.json と package-lock.json をコピー
+COPY package*.json ./
+
+# ルートで node_modules を作成（依存共通化）
+RUN npm ci
+
+# 各パッケージディレクトリをコピー
+COPY app_common ./app_common
+COPY app_web ./app_web
+
+# app_common の Prisma Client 生成（ルート node_modules を参照）
+RUN pwd
+RUN ls -la
+RUN npx prisma generate --schema=./app_common/prisma/schema.prisma
+
+# app_common のビルド
+WORKDIR /app/app_common
+RUN npm run build
+
+# app_web のビルド
+WORKDIR /app/app_web
+RUN npm rebuild lightningcss
+RUN npm run build
+
+# 作業ディレクトリ作成と権限付与
+RUN mkdir -p /app/.next/cache/images \
+    && chown -R node:node /app/.next
+
+# 非 root ユーザーで実行
+USER node
+
+# Webサービス用ポート
+EXPOSE 3000
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+# Webアプリケーション起動
+CMD ["npm", "start"]

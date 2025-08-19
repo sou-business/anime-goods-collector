@@ -2,6 +2,8 @@ import type { IProductScraper } from 'app_common';
 import type { IProductRepository } from 'app_common';
 import { ProductModel } from 'app_common';
 import { logger } from 'app_common';
+import { cacheSet } from 'app_common';
+import { CACHE_KEYS } from 'app_common';
 
 export class CommonScraper {
   constructor(
@@ -33,6 +35,7 @@ export class CommonScraper {
     this.logResults(products);
     
     await this.save(products);
+    cacheSet(CACHE_KEYS.PRODUCTS, products);
     return products;
   }
 

@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ProductModel } from 'app_common';
+import type { ProductModel } from 'app_common';
 import Product from '@/ui/components/Product';
 import LoadingSpinner from '@/ui/components/LoadingSpinner';
 import ErrorMessage from '@/ui/components/ErrorMessage';
+import { FrontProduct } from './frontModel/FrontProduct';
 
 const ProductsPage = () => {
     const [products, setProducts] = useState<ProductModel[]>([]);
@@ -27,16 +28,16 @@ const ProductsPage = () => {
                 throw new Error(`商品データの取得に失敗しました (${response.status}: ${response.statusText})`);
             }
             
-            const data = await response.json();
+            const productdJsonData = await response.json();
             
             // エラーレスポンスの場合
-            if (data.error) {
-                throw new Error(data.error);
+            if (productdJsonData.error) {
+                throw new Error(productdJsonData.error);
             }
             
             // JSONデータをProductModelインスタンスに変換
-            const productInstances = data.map((item: ProductModel) => 
-                new ProductModel(item.title, item.price, item.detail_url, item.image_url)
+            const productInstances = productdJsonData.map(
+                (item: ProductModel) => new FrontProduct(item)
             );
             
             setProducts(productInstances);

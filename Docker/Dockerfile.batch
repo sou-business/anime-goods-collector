@@ -1,0 +1,33 @@
+# Node.js 最新のAlpineベースイメージ
+FROM node:20-alpine
+
+# 作業ディレクトリ設定（ワークスペースのルート）
+WORKDIR /app
+
+# ルートの package.json と package-lock.json をコピー（キャッシュ効率化）
+COPY package*.json ./
+
+# 各パッケージディレクトリもコピー（ローカル依存を解決するため）
+COPY app_common ./app_common
+COPY app_batch ./app_batch
+
+# 依存関係インストール（ワークスペース対応）
+RUN npm ci
+
+# ビルド（順番に依存関係のあるものから）
+WORKDIR /app/app_common
+RUN npm run build
+
+WORKDIR /app/app_batch
+RUN npm run build
+
+# 非rootユーザーで実行（セキュリティ向上）
+USER node
+
+# ヘルスチェック（オプション）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD node -e "console.log('Batch service is running')" || exit 1
+
+# バッチアプリケーション起動
+WORKDIR /app/app_batch
+CMD ["npm", "start"]
