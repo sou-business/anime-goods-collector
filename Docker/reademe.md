@@ -6,13 +6,12 @@ https://www.docker.com/ja-jp/products/docker-desktop/
 コンテナ生成
 ```
 docker-compose up -d
-
-DBコンテナスタート
 ```
-docker start postgres_scraping_anime
 
-コンテナ再生成コマンド。データ残したいときは「-v」を外す。生成時のログ見たい場合は「-d」外す
+コンテナ再生成コマンド（コードを変更して反映したい場合等に利用する）    
 ```
+データ残したいときは「-v」を外す。生成時のログ見たい場合は「-d」外す
+
 docker-compose down -v
 
 既存イメージのまま起動。Dockerfile の変更は無視
