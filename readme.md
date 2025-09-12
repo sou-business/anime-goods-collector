@@ -4,24 +4,24 @@ npm install
 
 各フォルダについて
 ---
-- DB
+- DB  
 DBの関連ファイル
 
-- Docker
+- Docker  
 本アプリをローカルDockerで動かすため、それに関する関連ファイルを格納。
 ローカルで本アプリを動かす場合は、内部のreadmeを参照して、Dockerを構築すること。
 
-- app_batch
+- app_batch  
 グッズ情報を定期収集するためのバッチプロジェクト
 
-- app_cache
+- app_cache  
 キャッシュサーバ関連のファイル
 
-- app_common
+- app_common  
 各プロジェクトで共通的に使用するモジュール
 
-- app_web
+- app_web  
 webサーバ。利用者インタフェースプロジェクト
 
-- ドキュメント
+- ドキュメント  
 本アプリに関する仕様書
