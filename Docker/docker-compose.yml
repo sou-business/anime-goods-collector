@@ -3,7 +3,7 @@ services:
     image: postgres:14
     container_name: db_postgres
     
-    restart: always
+    restart: no
     ports:
       - 5432:5432
     environment:
@@ -24,7 +24,7 @@ services:
       - cache_data:/data
       - cache_logs:/var/log/redis
     command: redis-server /etc/redis/redis.conf
-    restart: unless-stopped
+    restart: no
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
@@ -48,7 +48,7 @@ services:
     depends_on:
       - cache
       - db
-    restart: unless-stopped
+    restart: no
     volumes:
       - batch_logs:/app/logs
 
@@ -69,7 +69,7 @@ services:
     depends_on:
       - cache
       - db
-    restart: unless-stopped
+    restart: no
     volumes:
       - web_logs:/app/logs
 

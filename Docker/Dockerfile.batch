@@ -4,7 +4,7 @@ FROM node:20-alpine
 # 作業ディレクトリ設定（ワークスペースのルート）
 WORKDIR /app
 
-# ルートの package.json と package-lock.json をコピー（キャッシュ効率化）
+# ルートの package.json と package-lock.json をコピー
 COPY package*.json ./
 
 # 各パッケージディレクトリもコピー（ローカル依存を解決するため）
