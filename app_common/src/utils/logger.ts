@@ -43,18 +43,12 @@ const winstonLogger = winston.createLogger({
   transports
 });
 
-// シンプルなロガー
+// 簡易ロガー
 export const logger = {
-  info: (message: string) => winstonLogger.info(message),
+  info: (message: string) => winstonLogger.info(`INFO: ${message}`),
   error: (message: string, error?: unknown) => {
     if (error instanceof Error) {
-      winstonLogger.error(`${message}: ${error.message}`);
-    } else if (typeof error === 'string') {
-      winstonLogger.error(`${message}: ${error}`);
-    } else if (error !== undefined) {
-      winstonLogger.error(`${message}: ${JSON.stringify(error)}`);
-    } else {
-      winstonLogger.error(message);
+      winstonLogger.error(`ERROR: ${message} , ${error.cause}`);
     }
   }
 };
