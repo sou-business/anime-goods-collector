@@ -14,7 +14,7 @@ docker-compose up -d
 このリポジトリの `docker-compose.yml` は、`web` と `batch` のソースをコンテナにマウントして `dev` 起動するようにしてあるため、
 通常は `docker-compose up -d` だけでコード変更が即反映されます。
 
-依存関係（npm installが必要な変更）をしたときだけ、`--build` を付けてください：
+依存関係（npm installが必要な変更）またはdocker設定関連ファイルを変更したときだけ、`--build` を付けてください：
 
 ```
 docker-compose up -d --build
