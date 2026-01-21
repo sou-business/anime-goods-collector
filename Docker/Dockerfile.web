@@ -27,15 +27,10 @@ RUN npm run build
 RUN mkdir -p /app/.next/cache/images \
     && chown -R node:node /app/.next
 
-# 非 root ユーザーで実行
-USER node
-
-# Webサービス用ポート
-EXPOSE 3000
-
 # ヘルスチェック
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD wget -qO- http://localhost:3000/health || exit 1
 
 # Webアプリケーション起動
+WORKDIR /app/app_web
 CMD ["npm", "start"]

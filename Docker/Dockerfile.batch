@@ -21,9 +21,6 @@ RUN npm run build
 WORKDIR /app/app_batch
 RUN npm run build
 
-# 非rootユーザーで実行（セキュリティ向上）
-USER node
-
 # ヘルスチェック（オプション）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD node -e "console.log('Batch service is running')" || exit 1
