@@ -11,17 +11,12 @@ COPY package*.json ./
 COPY app_common ./app_common
 COPY app_web ./app_web
 
-# ルートで node_modules を作成（依存共通化）
+# 依存関係インストール&ビルド
 RUN npm ci
 
-# app_common のビルド
-WORKDIR /app/app_common
-RUN npm run build
-
-# app_web のビルド
+# lightningcss を Docker 環境用に再ビルド（ネイティブモジュールのため）
 WORKDIR /app/app_web
 RUN npm rebuild lightningcss
-RUN npm run build
 
 # 作業ディレクトリ作成と権限付与
 RUN mkdir -p /app/.next/cache/images \

@@ -11,15 +11,8 @@ COPY package*.json ./
 COPY app_common ./app_common
 COPY app_batch ./app_batch
 
-# 依存関係インストール（ワークスペース対応）
+# 依存関係インストール&ビルド
 RUN npm ci
-
-# ビルド（順番に依存関係のあるものから）
-WORKDIR /app/app_common
-RUN npm run build
-
-WORKDIR /app/app_batch
-RUN npm run build
 
 # ヘルスチェック（オプション）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

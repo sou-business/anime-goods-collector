@@ -21,18 +21,13 @@ export class CommonScraper {
       durationMs: undefined as number | undefined,
     };
 
-    let products: ProductModel[];
-    try {
-      logger.info(`Scraping start: ${url}`);
-      products = await this.scraper.scrapeProducts(url);
-      result.products = products;
-      result.productCount = products.length;
-      logger.info(`${products.length}件の商品を収集しました`);
-      logger.info(`Scraping time: ${Date.now() - start}`);
-      logger.info(`Scraping End: ${url}`);
-    } catch (err) {
-      throw err;
-    }
+    logger.info(`Scraping start: ${url}`);
+    const products: ProductModel[] = await this.scraper.scrapeProducts(url);
+    result.products = products;
+    result.productCount = products.length;
+    logger.info(`${products.length}件の商品を収集しました`);
+    logger.info(`Scraping time: ${Date.now() - start}`);
+    logger.info(`Scraping End: ${url}`);
 
     return products;
   }

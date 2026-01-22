@@ -4,5 +4,8 @@
     "app_common",
     "app_batch",
     "app_web"
-  ]
+  ],
+  "scripts": {
+    "postinstall": "npm run build --workspaces"
+  }
 }
