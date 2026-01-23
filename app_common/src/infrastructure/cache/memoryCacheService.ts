@@ -34,12 +34,3 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
     return null;
   }
 }
-
-export async function cacheDelete(key: string): Promise<void> {
-  await redis.del(key);
-  logger.info(`Cache DEL: ${key}`);
-}
-
-export async function cacheExists(key: string): Promise<boolean> {
-  return (await redis.exists(key)) === 1;
-}

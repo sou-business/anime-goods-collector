@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { cospaScrapingJob } from '@/jobs/cospaScraperJob.js';
-import shedule_config from '@config/batch_schedule.json' with { type: 'json' };;
+import shedule_config from '@config/batch_schedule.json' with { type: 'json' };
 import { logger } from 'app_common';
 
 interface ScheduleConfig {

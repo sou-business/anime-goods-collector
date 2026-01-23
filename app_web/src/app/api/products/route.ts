@@ -1,9 +1,8 @@
-// /src/app/api/products/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { findAllFromCache } from '@/infrastructure/repository/CachedProductRepository';
 import { ProductModel, ProductsRepository } from 'app_common';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         const productsFromCache: ProductModel[] = await findAllFromCache();
         if (productsFromCache.length !== 0) {

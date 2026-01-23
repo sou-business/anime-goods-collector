@@ -78,20 +78,6 @@ const ProductsPage = () => {
                         ))}
                     </div>
                 )}
-
-                {/* デバッグ情報表示（開発時用） */}
-                {process.env.NODE_ENV === 'development' && products.length > 0 && (
-                    <div className="mt-12 bg-gray-800 text-white p-4 rounded">
-                        <h3 className="text-lg font-semibold mb-3">デバッグ情報:</h3>
-                        <pre className="text-sm overflow-x-auto">
-                            {products.map((product, index) => (
-                                <div key={index} className="mb-1">
-                                    {index + 1}: {product.toString()}
-                                </div>
-                            ))}
-                        </pre>
-                    </div>
-                )}
             </div>
         </div>
     );
