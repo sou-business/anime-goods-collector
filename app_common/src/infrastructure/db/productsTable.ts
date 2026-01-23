@@ -6,7 +6,7 @@ export async function findAllProducts(): Promise<Product[]>  {
   return products;
 }
 
-export async function createProducts(products: Omit<Prisma.ProductCreateInput, 'id'>[]): Promise<void> {
+export async function createProducts(products: Prisma.ProductCreateInput[]): Promise<void> {
   await prismaClient.product.createMany({
     data: products,
     skipDuplicates: true,

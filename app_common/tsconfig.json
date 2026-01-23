@@ -5,7 +5,7 @@
     "resolveJsonModule": true,
     "target": "esnext",
     "baseUrl": "./",
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"],
@@ -16,6 +16,7 @@
     "skipLibCheck": true,
     "declaration": true,    // 型定義ファイルを出力
     "emitDeclarationOnly": false, // JS も同時に出力する場合は false
+    "types": ["node"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "vitest.config.ts"]
 }
