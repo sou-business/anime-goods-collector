@@ -45,11 +45,13 @@ services:
       - db
     restart: no
     volumes:
-      - ../app_batch:/app/app_batch
-      - batch_logs:/app/logs
-      # node_modules をホストで上書きしない（コンテナ側の依存を保持）
+      - ../:/app
       - batch_node_modules:/app/node_modules
-      - batch_app_node_modules:/app/app_batch/node_modules
+      - batch_logs:/app/logs
+      # ホスト側の空のフォルダがコンテナ内のライブラリを上書きするのを防ぐ
+      - /app/app_batch/node_modules
+      - /app/app_common/node_modules
+      - /app/app_web/node_modules
     working_dir: /app/app_batch
     command: ["npm", "run", "dev"]
 
@@ -72,10 +74,14 @@ services:
       - db
     restart: no
     volumes:
-      - ../app_web:/app/app_web
+      - ../:/app
+      - web_node_modules:/app/node_modules
       - web_logs:/app/logs
       - web_node_modules:/app/node_modules
-      - web_app_node_modules:/app/app_web/node_modules
+      # ホスト側の空のフォルダがコンテナ内のライブラリを上書きするのを防ぐ
+      - /app/app_batch/node_modules
+      - /app/app_common/node_modules
+      - /app/app_web/node_modules
     working_dir: /app/app_web
     command: ["npm", "run", "dev"]
 
@@ -86,6 +92,4 @@ volumes:
   batch_logs:
   web_logs:
   batch_node_modules:
-  batch_app_node_modules:
   web_node_modules:
-  web_app_node_modules:
