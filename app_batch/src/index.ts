@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { cospaScrapingJob } from '@/jobs/cospaScraperJob.js';
-import shedule_config from '@config/batch_schedule.json' with { type: 'json' };
+import schedule_config from '@config/batch_schedule.json' with { type: 'json' };
 import { logger } from 'app_common';
 
 interface ScheduleConfig {
@@ -9,11 +9,11 @@ interface ScheduleConfig {
 }
 
 function loadConfig(): ScheduleConfig {
-  const env = (process.env.BATCH_SCHEDULE) as keyof typeof shedule_config;
-  if (!(env in shedule_config)) {
+  const env = (process.env.BATCH_SCHEDULE) as keyof typeof schedule_config;
+  if (!(env in schedule_config)) {
     throw new Error(`BATCH_SCHEDULE=${env} は batch_schedule.json に存在しません`);
   }
-  return shedule_config[env];
+  return schedule_config[env];
 }
 
 async function main() {
