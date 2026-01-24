@@ -1,8 +1,9 @@
 import type { IProductScraper } from 'app_common';
-import { ProductModel } from 'app_common';
-import * as cheerio from 'cheerio';
 import type { Element } from 'domhandler';
+import { ProductModel } from 'app_common';
 import { logger } from 'app_common';
+import { fetchWithTimeoutAndRetries } from 'app_common';
+import * as cheerio from 'cheerio';
 
 export class CospaScraper implements IProductScraper {
   readonly siteName = 'Cospa';
@@ -10,7 +11,7 @@ export class CospaScraper implements IProductScraper {
 
   async scrapeProducts(url: string): Promise<ProductModel[]> {
     // ①サイトにアクセス
-    const response = await fetch(url);
+    const response = await fetchWithTimeoutAndRetries(url, undefined, undefined);
     const html = await response.text();
     // cheerioでHTMLテキストをjQueryライクに扱えるようにする
     const $ = cheerio.load(html);
@@ -37,7 +38,7 @@ export class CospaScraper implements IProductScraper {
           imageUrl
         ));
       } catch (error) {
-        throw new Error('アイテム解析失敗', { cause: error });
+        logger.error('アイテム解析失敗', error);
       }
     });
     
