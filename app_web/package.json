@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "rimraf dist && next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "app_common": "*",
+    "rimraf": "^6.0.0",
     "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0"
