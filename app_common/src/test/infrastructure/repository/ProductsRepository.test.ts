@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProductsRepository } from './ProductsRepository.js';
-import { ProductModel } from '@/domain/model/ProductModel.js';
+import { ProductsRepository } from '@/infrastructure/repository/ProductsRepository.js';
 import * as productsTable from '@/infrastructure/db/productsTable.js';
+import { ProductModel } from '@/domain/model/ProductModel.js';
 import { Product } from '@prisma/client';
 
 // productsTableモジュールをモック化
