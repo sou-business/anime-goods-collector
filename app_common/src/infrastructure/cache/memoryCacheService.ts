@@ -27,7 +27,7 @@ export async function cacheGet<T>(key: string): Promise<T | null> {
       logger.info(`Cache HIT: ${key}`);
       return JSON.parse(cached);
     }
-    logger.error(`Cache MISS: ${key}`);
+    logger.info(`Cache MISS: ${key}`);
     return null;
   } catch (error) {
     logger.error('Cache GET error:', error);
