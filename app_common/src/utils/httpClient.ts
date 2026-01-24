@@ -1,3 +1,10 @@
+/**
+ * 外部サイトにfetchで接続用する場合に使用する、タイムアウトとリトライを実装したfetch関数。
+ * @param input The resource to fetch.
+ * @param init Options for the fetch request.
+ * @param opts Options for timeout and retries.
+ * @returns The response from the fetch request.
+ */
 export async function fetchWithTimeoutAndRetries(
     input: RequestInfo,
     init?: RequestInit,
