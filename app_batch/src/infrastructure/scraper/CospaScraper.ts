@@ -1,8 +1,8 @@
-import type { IProductScraper } from 'app_common';
+import type { IProductScraper } from 'app_common/server';
 import type { Element } from 'domhandler';
-import { ProductModel } from 'app_common';
-import { logger } from 'app_common';
-import { fetchWithTimeoutAndRetries } from 'app_common';
+import { ProductModel } from 'app_common/server';
+import { logger } from 'app_common/server';
+import { fetchExternal } from 'app_common/server';
 import * as cheerio from 'cheerio';
 
 export class CospaScraper implements IProductScraper {
@@ -11,7 +11,7 @@ export class CospaScraper implements IProductScraper {
 
   async scrapeProducts(url: string): Promise<ProductModel[]> {
     // ①サイトにアクセス
-    const response = await fetchWithTimeoutAndRetries(url, undefined, undefined);
+    const response = await fetchExternal(url, undefined, undefined);
     const html = await response.text();
     // cheerioでHTMLテキストをjQueryライクに扱えるようにする
     const $ = cheerio.load(html);

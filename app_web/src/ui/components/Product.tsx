@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductModel } from 'app_common';
+import { ProductModel } from 'app_common/server';
 
 interface ProductProps {
     product: ProductModel;

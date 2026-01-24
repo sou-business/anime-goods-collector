@@ -2,7 +2,7 @@ import {
     ProductModel,
     cacheGet,
     CACHE_KEYS,
- } from 'app_common';
+ } from 'app_common/server';
 
 export async function findAllFromCache(): Promise<ProductModel[]> {
     // キャッシュから取得

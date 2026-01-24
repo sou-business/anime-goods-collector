@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { findAllFromCache } from '@/infrastructure/repository/CachedProductRepository';
-import { ProductModel, ProductsRepository } from 'app_common';
+import { ProductModel, ProductsRepository } from 'app_common/server';
 
 export async function GET() {
     try {

@@ -1,9 +1,9 @@
-import type { IProductScraper } from 'app_common';
-import type { IProductRepository } from 'app_common';
-import { ProductModel } from 'app_common';
-import { logger } from 'app_common';
-import { cacheSet } from 'app_common';
-import { CACHE_KEYS } from 'app_common';
+import type { IProductScraper } from 'app_common/server';
+import type { IProductRepository } from 'app_common/server';
+import { ProductModel } from 'app_common/server';
+import { logger } from 'app_common/server';
+import { cacheSet } from 'app_common/server';
+import { CACHE_KEYS } from 'app_common/server';
 
 export class CommonScraper {
   constructor(
