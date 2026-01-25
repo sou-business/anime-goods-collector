@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Product {
-  id         Int      @id @default(autoincrement())
-  title      String
-  detail_url String?  @unique
-  image_url  String?
-  price      Int?
+  id        Int      @id @default(autoincrement())
+  detailUrl String   @unique @map("detail_url") @db.Text
+  title     String
+  imageUrl  String?  @map("image_url") @db.Text
+  price     Int?
 
   @@map("products")
 }

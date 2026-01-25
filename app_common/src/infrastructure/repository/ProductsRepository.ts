@@ -8,23 +8,28 @@ export class ProductsRepository implements IProductRepository {
   async findAll(): Promise<ProductModel[]> {
     const products:Product[] = await findAllProducts();
     return products.map(product => new ProductModel(
-      product.title ?? '',
-      product.price ? product.price : undefined,
-      product.detail_url  ? product.detail_url : undefined,
-      product.image_url ? product.image_url : undefined
+      product.id,
+      product.detailUrl,
+      product.title,
+      product.imageUrl ? product.imageUrl : null,
+      product.price ? product.price : null
     ));
   }
 
   async createProducts(products: ProductModel[]): Promise<void> {
+    if (products.length === 0) {
+      return;
+    }
+
     const productData: Prisma.ProductCreateManyInput[] = products.map(product => {
-      if (!product.detail_url) {
-        throw new Error(`商品のdetail_urlが必須です: ${product.title}`);
+      if (!product.detailUrl) {
+        throw new Error(`商品のdetailUrlが必須です: ${product.title}`);
       }
       return {
-        detail_url: product.detail_url,
+        detailUrl: product.detailUrl,
         title: product.title,
         price: product.price ?? null,
-        image_url: product.image_url ?? null,
+        imageUrl: product.imageUrl ?? null,
       };
     });
 

@@ -27,15 +27,21 @@ export class CospaScraper implements IProductScraper {
         const price = parseInt(priceText.replace(/[^\d]/g, '')) || 0;
         const detailPath = $item.find('h3 a').attr('href');
         const imagePath = $item.find('.itembox img.item-tn').attr('src');
+
+        if (!detailPath) {
+          console.warn('商品URLが見つからないため登録をスキップします');
+          return; 
+        }
         
-        const detailUrl = detailPath ? new URL(detailPath, url).href : undefined;
-        const imageUrl = imagePath ? new URL(imagePath, url).href : undefined;
+        const detailUrl = new URL(detailPath, url).href;
+        const imageUrl = new URL(imagePath ?? '', url).href;
         
         products.push(new ProductModel(
-          title,
-          price,
+          null,
           detailUrl,
-          imageUrl
+          title,
+          imageUrl,
+          price
         ));
       } catch (error) {
         logger.error('アイテム解析失敗', error);

@@ -6,11 +6,12 @@ import LoadingSpinner from '@/ui/components/LoadingSpinner';
 import ErrorMessage from '@/ui/components/ErrorMessage';
 import { useProducts } from '@/ui/hooks/useProducts';
 
+// ... (インポート部分はそのまま)
+
 const ProductsPage = () => {
   const { products, loading, error, refetch } = useProducts();
 
   if (loading) return <LoadingSpinner message="商品データを読み込み中..." />;
-
   if (error) return <ErrorMessage message={error} onRetry={refetch} />;
 
   return (
@@ -25,8 +26,8 @@ const ProductsPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => {
-              const key = (product as any).detailUrl || (product as any).id || (product as any).title;
-              return <Product key={key ?? undefined} product={product} />;
+              const key = product.detailUrl;
+              return <Product key={key} product={product} />;
             })}
           </div>
         )}

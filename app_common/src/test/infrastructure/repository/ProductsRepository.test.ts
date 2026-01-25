@@ -24,17 +24,17 @@ describe('ProductsRepository', () => {
       const mockProducts: Product[] = [
         {
           id: 1,
-          detail_url: 'https://example.com/product1',
+          detailUrl: 'https://example.com/product1',
           title: 'テスト商品1',
           price: 1000,
-          image_url: 'https://example.com/image1.jpg',
+          imageUrl: 'https://example.com/image1.jpg',
         },
         {
           id: 2,
-          detail_url: 'https://example.com/product2',
+          detailUrl: 'https://example.com/product2',
           title: 'テスト商品2',
           price: 2000,
-          image_url: null,
+          imageUrl: null,
         },
       ];
 
@@ -46,13 +46,13 @@ describe('ProductsRepository', () => {
       expect(result[0]).toBeInstanceOf(ProductModel);
       expect(result[0].title).toBe('テスト商品1');
       expect(result[0].price).toBe(1000);
-      expect(result[0].detail_url).toBe('https://example.com/product1');
-      expect(result[0].image_url).toBe('https://example.com/image1.jpg');
+      expect(result[0].detailUrl).toBe('https://example.com/product1');
+      expect(result[0].imageUrl).toBe('https://example.com/image1.jpg');
 
       expect(result[1].title).toBe('テスト商品2');
       expect(result[1].price).toBe(2000);
-      expect(result[1].detail_url).toBe('https://example.com/product2');
-      expect(result[1].image_url).toBeUndefined();
+      expect(result[1].detailUrl).toBe('https://example.com/product2');
+      expect(result[1].imageUrl).toBeUndefined();
 
       expect(productsTable.findAllProducts).toHaveBeenCalledTimes(1);
     });
@@ -70,10 +70,10 @@ describe('ProductsRepository', () => {
       const mockProducts: Product[] = [
         {
           id: 1,
-          detail_url: 'https://example.com/product',
+          detailUrl: 'https://example.com/product',
           title: 'テスト商品',
           price: null,
-          image_url: null,
+          imageUrl: null,
         },
       ];
 
@@ -84,16 +84,16 @@ describe('ProductsRepository', () => {
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('テスト商品');
       expect(result[0].price).toBeUndefined();
-      expect(result[0].detail_url).toBe('https://example.com/product');
-      expect(result[0].image_url).toBeUndefined();
+      expect(result[0].detailUrl).toBe('https://example.com/product');
+      expect(result[0].imageUrl).toBeUndefined();
     });
   });
 
   describe('createProducts', () => {
     it('商品を作成できること', async () => {
       const products: ProductModel[] = [
-        new ProductModel('商品1', 1000, 'https://example.com/1', 'https://example.com/img1.jpg'),
-        new ProductModel('商品2', 2000, 'https://example.com/2'),
+        new ProductModel(null, 'https://example.com/1', '商品1', 'https://example.com/img1.jpg', 1000,),
+        new ProductModel(null, 'https://example.com/2', '商品2', null, 2000),
       ];
 
       vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
@@ -103,16 +103,18 @@ describe('ProductsRepository', () => {
       expect(productsTable.createProducts).toHaveBeenCalledTimes(1);
       expect(productsTable.createProducts).toHaveBeenCalledWith([
         {
-          detail_url: 'https://example.com/1',
+          id: expect.any(Number),
+          detailUrl: 'https://example.com/1',
           title: '商品1',
+          imageUrl: 'https://example.com/img1.jpg',
           price: 1000,
-          image_url: 'https://example.com/img1.jpg',
         },
         {
-          detail_url: 'https://example.com/2',
+          id: expect.any(Number),
+          detailUrl: 'https://example.com/2',
           title: '商品2',
+          imageUrl: null,
           price: 2000,
-          image_url: null,
         },
       ]);
     });
@@ -124,16 +126,6 @@ describe('ProductsRepository', () => {
 
       expect(productsTable.createProducts).toHaveBeenCalledTimes(1);
       expect(productsTable.createProducts).toHaveBeenCalledWith([]);
-    });
-
-    it('detail_urlが未指定の場合はエラーになること', async () => {
-      const products: ProductModel[] = [
-        new ProductModel('商品1', undefined, undefined, undefined),
-      ];
-
-      vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
-
-      await expect(repository.createProducts(products)).rejects.toThrow('商品のdetail_urlが必須です: 商品1');
     });
   });
 

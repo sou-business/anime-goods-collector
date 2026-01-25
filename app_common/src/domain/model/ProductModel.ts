@@ -1,8 +1,9 @@
 export class ProductModel {
     constructor(
+        public readonly id: number | null,
+        public readonly detailUrl: string,
         public readonly title: string,
-        public readonly price?: number,
-        public readonly detail_url?: string,
-        public readonly image_url?: string,
+        public readonly imageUrl: string | null,
+        public readonly price: number | null
     ) {}
 }

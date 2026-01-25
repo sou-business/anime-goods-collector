@@ -10,10 +10,10 @@ interface ProductProps {
 const Product: React.FC<ProductProps> = ({ product }) => {
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            {product.image_url && (
+            {product.imageUrl && (
                 <div className="relative w-full h-48">
                     <Image
-                        src={product.image_url}
+                        src={product.imageUrl}
                         alt={product.title}
                         fill
                         className="object-cover"
@@ -29,9 +29,9 @@ const Product: React.FC<ProductProps> = ({ product }) => {
                         ¥{product.price.toLocaleString()}
                     </p>
                 )}
-                {product.detail_url && (
+                {product.detailUrl && (
                     <Link 
-                        href={product.detail_url}
+                        href={product.detailUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm transition-colors duration-200"
