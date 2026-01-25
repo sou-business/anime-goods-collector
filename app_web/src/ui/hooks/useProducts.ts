@@ -28,12 +28,26 @@ export function useProducts() {
         { timeoutMs: undefined, retries: undefined, retryDelayMs: undefined, signal: controller.signal }
       );
 
-      const data = await res.json();
-      if (!Array.isArray(data)) throw new Error('サーバーからのレスポンス形式が不正です');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null); 
+
+        // 独自エラー（messageフィールドがある場合）か判断
+        if (errorData && errorData.message) {
+          throw new Error(errorData.message);
+        }
+
+        // 3. それ以外500エラー等
+        throw new Error(`サーバーエラーが発生しました (${res.status})`);
+      }
+
+      const data: ProductModel[] = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error('サーバーからのレスポンス形式が不正です');
+      }
 
       setProducts(data as ProductModel[]);
     } catch (err) {
-      if ((err as any).name === 'AbortError') return;
+      if (err instanceof Error && err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
     } finally {
       setLoading(false);
