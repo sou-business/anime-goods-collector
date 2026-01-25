@@ -27,3 +27,8 @@ errorや問題個所のあるファイル表示(app_common, app_batch直下)
 ```bash
 npx eslint --quiet
 ```
+
+dockerを使わずにサーバ起動したい場合
+```bash
+npm run dev --workspace=app_web
+```
