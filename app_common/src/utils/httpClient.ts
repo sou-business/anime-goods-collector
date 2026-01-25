@@ -20,8 +20,6 @@ export class HttpError extends Error {
   }
 }
 
-// ...existing code...
-
 /**
  * 単一試行を担当するヘルパー。
  * - timeoutMs を使って内部 AbortController を作る
