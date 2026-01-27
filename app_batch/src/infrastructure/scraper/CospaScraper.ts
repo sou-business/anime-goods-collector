@@ -29,7 +29,7 @@ export class CospaScraper implements IProductScraper {
         const imagePath = $item.find('.itembox img.item-tn').attr('src');
 
         if (!detailPath) {
-          console.warn('商品URLが見つからないため登録をスキップします');
+          logger.warn('商品URLが見つからないため登録をスキップします');
           return; 
         }
         
