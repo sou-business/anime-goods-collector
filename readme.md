@@ -8,12 +8,8 @@ redis、DB、docker、アプリ機能「データ収集（スクレイピング�
 
 各フォルダについて
 ---
-- DB  
-DBの関連ファイル
-
-- Docker  
-本アプリをローカルDockerで動かすため、それに関する関連ファイルを格納。
-ローカルで本アプリを動かす場合は、内部のreadmeを参照して、Dockerを構築すること。
+- .github
+github Actionsの実行に必要なファイル格納
 
 - app_batch  
 グッズ情報を定期収集するためのバッチプロジェクト
@@ -26,6 +22,10 @@ DBの関連ファイル
 
 - app_web  
 利用者インタフェースに関わるプロジェクト
+
+- Docker  
+本アプリをローカルDockerで動かすため、それに関する関連ファイルを格納。
+ローカルで本アプリを動かす場合は、内部のreadmeを参照して、Dockerを構築すること。
 
 - ドキュメント  
 本アプリに関する
@@ -54,6 +54,7 @@ DBの関連ファイル
 | キャッシュサーバ | redis |
 | データベース | PostgreSQL + Prisma ORM |
 | 設計思想 | DDD |
+| CI/CD | GitHub Actions |
 
 ### 言語・技術選定の意図
 - TypeScript, React, Node.js  
