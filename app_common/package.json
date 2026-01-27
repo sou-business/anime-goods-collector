@@ -18,8 +18,8 @@
     "prebuild": "rimraf dist", 
     "build": "prisma generate && tsc && tsc-alias",
     "start": "node dist/index.js",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test:watch": "vitest",
+    "test:once": "vitest run",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
     "type-check": "tsc --noEmit"
