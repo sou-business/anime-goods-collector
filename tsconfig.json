@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./app_common" },
+    { "path": "./app_batch" },
+    { "path": "./app_web" }
+  ]
+}

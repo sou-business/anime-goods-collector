@@ -1,22 +1,12 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolveJsonModule": true,
-    "target": "esnext",
-    "baseUrl": "./",
-    "rootDir": "./",
+    "baseUrl": ".",
+    "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"],
-    },
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "declaration": true,    // 型定義ファイルを出力
-    "emitDeclarationOnly": false, // JS も同時に出力する場合は false
-    "types": ["node"]
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*", "vitest.config.ts"]
+  "include": ["src/**/*"]
 }
