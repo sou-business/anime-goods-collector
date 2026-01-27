@@ -5,15 +5,13 @@
     "outDir": "./dist",
     "resolveJsonModule": true,
     "module": "nodenext",
-    "baseUrl": "./",
+    "moduleResolution": "nodenext",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@config/*": ["./config/*"],
+      "@/*": ["src/*"],
+      "@config/*": ["config/*"],
       "app_common/*": ["../app_common/src/*"]
-    },
+    }
   },
-  "include": [
-    "src/**/*", 
-    "config/**/*.json" // 👈 これを追加！
-  ]
+  "include": ["src/**/*", "config/**/*.json"]
 }
