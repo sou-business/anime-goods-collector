@@ -1,38 +1,59 @@
 name: CI/CD Pipeline
 
-# トリガー：いつ実行するか
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-# ジョブ：何をするか
 jobs:
-  build-and-test:
+  # ビルドジョブ：依存関係と実行バイナリ、型定義を生成する
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: リポジトリのチェックアウト
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16'
+          cache: 'npm'
 
-      - name: Node.jsのセットアップ
-        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=./app_common/prisma/schema.prisma
+
+      - name: Build all packages
+        run: npm run build
+
+      # ビルド済みのファイル（distやPrisma Client）を一時保存
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-assets
+          path: |
+            **/dist
+            **/node_modules/.prisma
+            node_modules
+          retention-days: 1 # 1日で自動削除
+
+  # 検証ジョブ：型チェックとテストを並列で実行
+  verify:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: ['type-check', 'test:once']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22.16'
 
-      - name: 依存関係インストール
-        run: npm ci
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
 
-      - name: Prisma Client作成
-        run: npx prisma generate --schema=./app_common/prisma/schema.prisma
-
-      - name: ビルド
-        run: npm run build
-
-      - name: 型チェック
-        run: npm run type-check
-
-      - name: テスト
-        run: npm run test:once
-
+      - name: Run ${{ matrix.task }}
+        run: npm run ${{ matrix.task }}
