@@ -1,32 +1,27 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
 
 export default [
   // ファイル除外設定（最初に配置）
   {
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**", 
-      "build/**",
-      "dist/**",
-      "coverage/**",
-      ".git/**",
-      // Prisma関連の除外
-      "**/prisma/generated/**",
-      "**/.prisma/**", 
-      "**/generated/**",
-      // その他の生成ファイル
-      "**/*.d.ts",
-      "**/migrations/**",
-      // 設定ファイルの除外
-      "*.config.*",
-      "eslint.config.mjs",
-      "postcss.config.mjs", 
-      "prettier.config.js",
-    ],
-  },
+  ignores: [
+        "**/node_modules/**",
+        "**/.next/**",
+        "**/out/**", 
+        "**/build/**",
+        "**/dist/**",
+        "**/coverage/**",
+        "**/.git/**",
+        "**/prisma/generated/**",
+        "**/.prisma/**", 
+        "**/generated/**",
+        "**/*.d.ts",
+        "**/migrations/**",
+        "**/*.config.*",
+      ],
+    },
 
   // ESLintの推奨ルール
   js.configs.recommended,
@@ -52,6 +47,7 @@ export default [
       },
     },
     plugins: {
+      react: pluginReact,
       "@typescript-eslint": tseslint.plugin,
     },
     rules: {
@@ -60,9 +56,18 @@ export default [
       "@typescript-eslint/no-unused-vars": "warn",
       "no-console": "warn",
       
+      // Reactルール
+      "react/react-in-jsx-scope": "off", // Next.jsでは不要
+      "react/prop-types": "off", // TypeScript使用時は不要
+      
       // TypeScriptルール
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-use-before-define": "warn",
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
   },
 ];
