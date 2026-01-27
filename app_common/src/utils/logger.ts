@@ -66,16 +66,26 @@ const winstonLogger = winston.createLogger({
 
 // 簡易ロガー
 export const logger = {
-  info: (message: string, meta?: any) => winstonLogger.info(message, meta),
-  warn: (message: string, meta?: any) => winstonLogger.warn(message, meta),
-  debug: (message: string, meta?: any) => winstonLogger.debug(message, meta),
-  error: (message: string, error?: unknown, meta?: any) => {
+  info: (message: string, meta?: Record<string, unknown>) => winstonLogger.info(message, meta),
+  warn: (message: string, meta?: Record<string, unknown>) => winstonLogger.warn(message, meta),
+  debug: (message: string, meta?: Record<string, unknown>) => winstonLogger.debug(message, meta),
+  error: (message: string, error?: unknown, meta?: Record<string, unknown>) => {
     if (error instanceof Error) {
-      winstonLogger.error(message, { error: { message: error.message, stack: error.stack, ...(error as any).cause ? { cause: (error as any).cause } : {} }, ...meta });
+      winstonLogger.error(message, {
+        error: {
+          message: error.message,
+          stack: error.stack,
+          // (error as any) を避けるため、'cause' in error で存在確認を行います
+          ...(typeof error === 'object' && error !== null && 'cause' in error
+            ? { cause: (error as { cause?: unknown }).cause }
+            : {}),
+        },
+        ...meta,
+      });
     } else {
       winstonLogger.error(message, { error, ...meta });
     }
-  }
+  },
 };
 
 export default winstonLogger;

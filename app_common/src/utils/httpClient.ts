@@ -2,16 +2,14 @@ export type HttpClientOpts = {
   timeoutMs?: number;
   retries?: number;
   retryDelayMs?: number;
-  // true (default): 非 OK のレスポンスは HttpError を投げる
-  // false: 呼び出し元で res.ok をチェックできるように Response をそのまま返す
   throwOnHttpError?: boolean;
 };
 
 export class HttpError extends Error {
   status: number;
   statusText: string;
-  body: any;
-  constructor(status: number, statusText: string, body: any) {
+  body: unknown;
+  constructor(status: number, statusText: string, body: unknown) {
     super(`HTTP ${status} ${statusText}`);
     this.name = 'HttpError';
     this.status = status;
@@ -76,7 +74,7 @@ export async function fetchInternal(
       return res;
     } catch (err) {
       // external abort が原因なら再試行せず即時伝播
-      if ((err as any)?.name === 'AbortError' && opts?.signal?.aborted) {
+      if (err instanceof Error && err.name === 'AbortError' && opts?.signal?.aborted) {
         throw err;
       }
       const last = attempt === retries;
