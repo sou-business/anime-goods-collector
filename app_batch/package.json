@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "rimraf dist && tsc && tsc-alias",
+    "prebuild": "rimraf dist", 
+    "build": "tsc && tsc-alias",
     "dev": "cross-env BATCH_SCHEDULE=development tsx src/index.ts",
     "start": "cross-env BATCH_SCHEDULE=production tsx src/index.ts",
     "lint": "eslint src/**/*.ts"

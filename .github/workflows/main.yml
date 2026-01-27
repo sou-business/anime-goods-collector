@@ -22,13 +22,13 @@ jobs:
           node-version: '22.16'
 
       - name: 依存関係インストール
-        run: npm ci 
+        run: npm ci
 
       - name: 型チェック
         run: npm run type-check
 
       - name: テスト
-        run: npm test
+        run: npm run test:run
 
       - name: 本番ビルド
         run: npm run build

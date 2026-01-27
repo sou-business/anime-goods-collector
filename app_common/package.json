@@ -15,12 +15,13 @@
   },
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "rimraf dist && npx prisma generate && tsc && tsc-alias",
+    "prebuild": "rimraf dist", 
+    "build": "prisma generate && tsc && tsc-alias",
     "start": "node dist/src/index.js",
     "test": "vitest",
     "test:run": "vitest run",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint:fix": "npm run lint -- --fix",
     "type-check": "tsc --noEmit"
   },
   "keywords": [],
