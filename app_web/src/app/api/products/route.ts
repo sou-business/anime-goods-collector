@@ -18,7 +18,7 @@ export async function GET() {
         }
     } catch (error) {
         const message = error instanceof Error ? error.message : '予期せぬエラーが発生しました';
-        logger.error(message, error, 'Failed to fetch products');
+        logger.error(message, error);
         return NextResponse.json(
             { error: '商品データの取得に失敗しました' },
             { status: 500 }
