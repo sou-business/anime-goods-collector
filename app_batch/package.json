@@ -7,7 +7,8 @@
     "build": "tsc && tsc-alias",
     "dev": "cross-env BATCH_SCHEDULE=development tsx src/index.ts",
     "start": "cross-env BATCH_SCHEDULE=production tsx src/index.ts",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "app_common": "*",
