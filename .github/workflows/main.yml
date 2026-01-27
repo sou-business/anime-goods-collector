@@ -24,11 +24,15 @@ jobs:
       - name: 依存関係インストール
         run: npm ci
 
+      - name: Prisma Client作成
+        run: npx prisma generate --schema=./app_common/prisma/schema.prisma
+
+      - name: ビルド
+        run: npm run build
+
       - name: 型チェック
         run: npm run type-check
 
       - name: テスト
         run: npm run test:run
 
-      - name: ビルド
-        run: npm run build

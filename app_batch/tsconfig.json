@@ -10,7 +10,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@config/*": ["config/*"],
-      "app_common/*": ["../app_common/src/*"]
     }
   },
   "include": ["src/**/*", "config/**/*.json"]

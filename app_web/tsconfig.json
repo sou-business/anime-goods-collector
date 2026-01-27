@@ -22,7 +22,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "app_common/*": ["../app_common/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
