@@ -8,10 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "declaration": true,
-    "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "app_common/*": ["../app_common/src/*"]
-    }
+    "resolveJsonModule": true
   }
 }

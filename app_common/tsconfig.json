@@ -5,7 +5,8 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "app_common/*": ["../app_common/src/*"]
     }
   },
   "include": ["src/**/*"]
