@@ -6,7 +6,6 @@
     "app_web"
   ],
   "scripts": {
-    "postinstall": "npm run build --workspaces",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "npm run build --workspaces"
