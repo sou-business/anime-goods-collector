@@ -30,5 +30,5 @@ jobs:
       - name: テスト
         run: npm run test:run
 
-      - name: 本番ビルド
+      - name: ビルド
         run: npm run build
