@@ -1,11 +1,18 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,      // 👈 これ重要！案内板(references)を使う時に必須
-    "rootDir": "src",
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "composite": true,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "module": "nodenext",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@config/*": ["./config/*"],
+    },
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*", 
+    "config/**/*.json" // 👈 これを追加！
+  ]
 }
