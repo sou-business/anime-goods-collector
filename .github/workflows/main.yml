@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # ビルドジョブ：依存関係と実行バイナリ、型定義を生成する
+  # 1. ビルドジョブ
   build:
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +26,6 @@ jobs:
       - name: Build all packages
         run: npm run build
 
-      # ビルド済みのファイル（distやPrisma Client）を一時保存
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -34,10 +33,9 @@ jobs:
           path: |
             **/dist
             **/node_modules/.prisma
-            node_modules
-          retention-days: 1 # 1日で自動削除
+          retention-days: 1
 
-  # 検証ジョブ：型チェックとテストを並列で実行
+  # 2. 検証ジョブ
   verify:
     needs: build
     runs-on: ubuntu-latest
@@ -46,9 +44,14 @@ jobs:
         task: ['type-check', 'test:once']
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
           node-version: '22.16'
+          cache: 'npm' # build時のキャッシュから引き継ぐ
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
