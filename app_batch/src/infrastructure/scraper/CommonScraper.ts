@@ -34,7 +34,7 @@ export class CommonScraper {
 
   // 商品を保存する
   async save(products: ProductModel[]): Promise<void> {
-    await this.repository.createProducts(products);
+    await this.repository.saveProducts(products);
   }
 
   // 指定URLでの商品作成

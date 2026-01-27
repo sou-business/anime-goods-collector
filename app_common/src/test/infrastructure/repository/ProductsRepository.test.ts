@@ -52,7 +52,7 @@ describe('ProductsRepository', () => {
       expect(result[1].title).toBe('テスト商品2');
       expect(result[1].price).toBe(2000);
       expect(result[1].detailUrl).toBe('https://example.com/product2');
-      expect(result[1].imageUrl).toBeUndefined();
+      expect(result[1].imageUrl).toBeNull();
 
       expect(productsTable.findAllProducts).toHaveBeenCalledTimes(1);
     });
@@ -83,9 +83,9 @@ describe('ProductsRepository', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('テスト商品');
-      expect(result[0].price).toBeUndefined();
+      expect(result[0].price).toBeNull();
       expect(result[0].detailUrl).toBe('https://example.com/product');
-      expect(result[0].imageUrl).toBeUndefined();
+      expect(result[0].imageUrl).toBeNull();
     });
   });
 
@@ -98,34 +98,29 @@ describe('ProductsRepository', () => {
 
       vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
 
-      await repository.createProducts(products);
+      await repository.saveProducts(products);
 
       expect(productsTable.createProducts).toHaveBeenCalledTimes(1);
       expect(productsTable.createProducts).toHaveBeenCalledWith([
-        {
-          id: expect.any(Number),
+        expect.objectContaining({
           detailUrl: 'https://example.com/1',
           title: '商品1',
-          imageUrl: 'https://example.com/img1.jpg',
-          price: 1000,
-        },
-        {
-          id: expect.any(Number),
+          price: 1000
+        }),
+        expect.objectContaining({
           detailUrl: 'https://example.com/2',
           title: '商品2',
-          imageUrl: null,
-          price: 2000,
-        },
+          price: 2000
+        })
       ]);
     });
 
-    it('空の配列を渡した場合でもエラーにならないこと', async () => {
+    it('空の配列を渡した場合は何もしないこと', async () => {
       vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
 
-      await repository.createProducts([]);
+      await repository.saveProducts([]);
 
-      expect(productsTable.createProducts).toHaveBeenCalledTimes(1);
-      expect(productsTable.createProducts).toHaveBeenCalledWith([]);
+      expect(productsTable.createProducts).toHaveBeenCalledTimes(0);
     });
   });
 

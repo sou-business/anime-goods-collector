@@ -16,7 +16,7 @@ export class ProductsRepository implements IProductRepository {
     ));
   }
 
-  async createProducts(products: ProductModel[]): Promise<void> {
+  async saveProducts(products: ProductModel[]): Promise<void> {
     if (products.length === 0) {
       return;
     }
