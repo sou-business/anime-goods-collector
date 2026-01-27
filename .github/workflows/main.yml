@@ -55,3 +55,4 @@ jobs:
           node-version: '22.16'
 
       - name: Run ${{ matrix.task }}
+        run: npm run ${{ matrix.task }}
