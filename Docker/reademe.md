@@ -7,31 +7,23 @@ docker desktop を起動
 
 イメージ取得＆コンテナ生成
 ```
-docker-compose up -d db
-```
-
-app_common/prisma/scheam.prismaを基にテーブル作成する
-```
-cd ../app_common
-npx prisma db push
-```
-
-再度本ディレクトリまで移動して以下を実行
-```
 docker-compose up -d
 ```
 
-### 開発で「コードだけ」反映したい場合（おすすめ）
-このリポジトリの `docker-compose.yml` は、`web` と `batch` のソースをコンテナにマウントして `dev` 起動するようにしてあるため、
-通常は `docker-compose up -d` だけでコード変更が即反映されます。
+docker desktopのContainers見て「anime-collect」配下のコンテナが全て起動（Actionsが■）していればOK。
 
-コンテナ生成
+### 最新コードでコンテナを再ビルドしたい場合
+
+コンテナ生成（web、batchを再ビルドする場合は「cache、db」が起動してる必要がある）
 ```
-依存関係（npm installが必要な変更）またはdocker設定関連ファイルを変更したときだけ、`--build` を付けてください：
-docker-compose up -d --build
+全コンテナ再ビルド
+docker-compose up -d
 
-webコンテナのみ再ビルドしたい場合（他コンテナも同様「web, batch, db, cache」等）
+特定コンテナのみ再ビルド。末尾はコンテナに応じて変更「web, batch, db, cache」
 docker-compose up -d web
+
+依存関係を変更した場合、またはdocker設定関連ファイルを変更した場合
+docker-compose up -d --build
 ```
 
 削除
@@ -42,7 +34,7 @@ docker-compose stop
 動いてないコンテナ全削除。データ残したいときは「-v」を外す。生成時のログ見たい場合は「-d」外す
 docker-compose down -v
 
-強制的にイメージもコンテナもボリュームもすべて削除
+強制的に動いてるイメージもコンテナもボリュームもすべて削除
 docker-compose down --volumes --rmi all
 ```
 

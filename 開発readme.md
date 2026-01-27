@@ -13,9 +13,13 @@ npm install
 npm run build
 ```
 
-app_common/prisma/schema.prismaを修正した場合は、app_common直下で以下コマンドを実行
+app_common/prisma/schema.prismaを修正した場合は、app_common直下で以下の用途に応じたコマンドを実行
 ```bash
+モジュールに反映したい場合
 npx prisma generate
+
+scheam.prismaを基にテーブルを再作成したい場合
+npx prisma db push
 ```
 
 特定のファイル実行

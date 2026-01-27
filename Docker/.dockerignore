@@ -1,0 +1,27 @@
+# 1. 重量の元凶：ローカルの node_modules をコピーさせない
+**/node_modules
+
+# 2. ビルド生成物・キャッシュ
+**/.next
+**/dist
+**/build
+**/.cache
+**/.npm
+
+# 4. Git 関連（履歴がたまると非常に重い）
+.git
+.gitignore
+.gitattributes
+
+# 5. 環境変数（セキュリティのためにも除外）
+.env
+.env.*
+!.env.example
+
+# 7. テスト・ドキュメント（実行イメージには不要）
+**/tests
+**/__tests__
+**/*.test.ts
+**/*.test.js
+**/docs
+**/*.md
