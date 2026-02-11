@@ -6,12 +6,8 @@ export function useProducts() {
   const [products, setProducts] = useState<ProductModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
-  const fetchProducts = useCallback(async () => {
-    const controller = new AbortController();
-    abortRef.current = controller;
-
+  const fetchProducts = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
@@ -25,7 +21,7 @@ export function useProducts() {
             'Content-Type': 'application/json',
           },
         },
-        { timeoutMs: undefined, retries: undefined, retryDelayMs: undefined, signal: controller.signal }
+        { timeoutMs: undefined, retries: undefined, retryDelayMs: undefined, signal: signal}
       );
 
       if (!res.ok) {
@@ -51,13 +47,13 @@ export function useProducts() {
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');
     } finally {
       setLoading(false);
-      if (abortRef.current === controller) abortRef.current = null;
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
-    return () => abortRef.current?.abort();
+    const controller = new AbortController();
+    fetchProducts(controller.signal);
+    return () => controller.abort();
   }, [fetchProducts]);
 
   return { products, loading, error, refetch: fetchProducts };
