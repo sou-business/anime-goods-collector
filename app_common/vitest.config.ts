@@ -9,6 +9,7 @@ const __dirname = dirname(__filename);
 export default defineConfig({
   test: {
     globals: true,
+    clearMocks: true,
     environment: 'node',
     include: ['src/**/*.test.ts'],
   },

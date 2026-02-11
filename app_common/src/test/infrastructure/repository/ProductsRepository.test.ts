@@ -16,7 +16,6 @@ describe('ProductsRepository', () => {
 
   beforeEach(() => {
     repository = new ProductsRepository();
-    vi.clearAllMocks();
   });
 
   describe('findAll', () => {
