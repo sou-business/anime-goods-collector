@@ -1,3 +1,7 @@
+## 前提条件
+ - 本リポジトリをローカルにクローンしていること
+ - ポート：3000、5432、6379が空いてること
+
 ## 1. 以下サイトからdocker desktopをインストール   
 https://www.docker.com/ja-jp/products/docker-desktop/
 
