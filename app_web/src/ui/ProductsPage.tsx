@@ -6,8 +6,6 @@ import LoadingSpinner from '@/ui/components/LoadingSpinner';
 import ErrorMessage from '@/ui/components/ErrorMessage';
 import { useProducts } from '@/ui/hooks/useProducts';
 
-// ... (インポート部分はそのまま)
-
 const ProductsPage = () => {
   const { products, loading, error, refetch } = useProducts();
 
