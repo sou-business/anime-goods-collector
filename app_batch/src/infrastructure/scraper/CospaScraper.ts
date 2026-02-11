@@ -10,17 +10,19 @@ export class CospaScraper implements IProductScraper {
   readonly itemSelector = '.item_tn';
 
   async scrapeProducts(url: string): Promise<ProductModel[]> {
-    // ①サイトにアクセス
+    // サイトにアクセス
     const response = await fetchExternal(url, undefined, undefined);
     const html = await response.text();
-    // cheerioでHTMLテキストをjQueryライクに扱えるようにする
-    const $ = cheerio.load(html);
-    
+    // 収集したHTMLから商品情報抽出して返す
+    return this.extractProductsFromHTML(url, cheerio.load(html));
+  }
+
+  extractProductsFromHTML(url: string, $: cheerio.CheerioAPI): ProductModel[] {
     const products: ProductModel[] = [];
-    // ②各アイテムをくくる「アイテムdiv」を探して、収集
+    // 各アイテムをくくる「アイテムdiv」を探して、収集
     $(this.itemSelector).each((_:number, element:Element) => {
       try {
-        // ③アイテムdiv内の要素を分析・振り分け
+        // アイテム要素を分析・振り分け
         const $item = $(element);
         const title = $item.find('h3').text().trim();
         const priceText = $item.find('strong').text();
@@ -47,8 +49,7 @@ export class CospaScraper implements IProductScraper {
         logger.error('アイテム解析失敗', error);
       }
     });
-    
-    // ④収集結果を返す
+
     return products;
   }
 
