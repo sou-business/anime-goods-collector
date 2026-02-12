@@ -7,7 +7,7 @@ export function useProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async (signal?: AbortSignal) => {
+  const fetchProducts = useCallback(async (abortSignal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
@@ -21,7 +21,7 @@ export function useProducts() {
             'Content-Type': 'application/json',
           },
         },
-        { timeoutMs: undefined, retries: undefined, retryDelayMs: undefined, signal: signal}
+        { timeoutMs: undefined, retries: undefined, retryDelayMs: undefined, abortSignal: abortSignal}
       );
 
       if (!res.ok) {

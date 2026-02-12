@@ -53,6 +53,34 @@ async function attemptFetch(
 }
 
 /**
+ * 外部API用のリトライ判断
+ */
+function shouldRetryExternal(err: unknown): boolean {
+  // ネットワークエラー
+  if (err instanceof TypeError && err.message.includes('fetch')) {
+    return true;
+  }
+  
+  // タイムアウト
+  if (err instanceof Error && err.name === 'AbortError') {
+    return true;
+  }
+  
+  // HTTPエラー
+  if (err instanceof HttpError) {
+    // 5xx: サーバーエラー 
+    if (err.status >= 500) return true;
+    // 429: Too Many Requests
+    if (err.status === 429) return true;
+    // 408: Request Timeout
+    if (err.status === 408) return true;
+    return false;
+  }
+  // 不明なエラー
+  return false;
+}
+
+/**
  * 共通のリトライ・タイムアウト制御ロジック
  */
 async function fetchCore(
@@ -135,32 +163,4 @@ export async function fetchExternal(
     },
     shouldRetryExternal
   );
-}
-
-/**
- * 外部API用のリトライ判断
- */
-function shouldRetryExternal(err: unknown): boolean {
-  // ネットワークエラー
-  if (err instanceof TypeError && err.message.includes('fetch')) {
-    return true;
-  }
-  
-  // タイムアウト
-  if (err instanceof Error && err.name === 'AbortError') {
-    return true;
-  }
-  
-  // HTTPエラー
-  if (err instanceof HttpError) {
-    // 5xx: サーバーエラー 
-    if (err.status >= 500) return true;
-    // 429: Too Many Requests
-    if (err.status === 429) return true;
-    // 408: Request Timeout
-    if (err.status === 408) return true;
-    return false;
-  }
-  // 不明なエラー
-  return false;
 }
