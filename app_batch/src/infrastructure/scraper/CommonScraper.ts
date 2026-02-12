@@ -14,17 +14,9 @@ export class CommonScraper {
   // 商品をスクレイピングする
   async scrapeFromUrl(url: string): Promise<ProductModel[]> {
     const start = Date.now();
-    const result = {
-      sourceUrl: url,
-      products: [] as ProductModel[],
-      productCount: 0,
-      durationMs: undefined as number | undefined,
-    };
 
     logger.info(`Scraping start: ${url}`);
     const products: ProductModel[] = await this.scraper.scrapeProducts(url);
-    result.products = products;
-    result.productCount = products.length;
     logger.info(`${products.length}件の商品を収集しました`);
     logger.info(`Scraping time: ${Date.now() - start}`);
     logger.info(`Scraping End: ${url}`);
@@ -44,7 +36,7 @@ export class CommonScraper {
     const products = await this.scrapeFromUrl(url);
     logger.info(`scraping save start`);
     await this.save(products);
-    cacheSet(CACHE_KEYS.PRODUCTS, products);
+    await cacheSet(CACHE_KEYS.PRODUCTS, products);
     logger.info(`scraping save end`);
     return products;
   }
