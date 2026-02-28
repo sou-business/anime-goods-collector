@@ -1,0 +1,32 @@
+graph TB
+
+External["🌍 収集対象の外部サイト"]
+
+User["👤 ユーザー(ブラウザ)"]
+
+subgraph ANIME-GOODS-COLLECTOR
+    CI["🔧 GitHub Actions (CI)"]
+    
+    subgraph application
+        subgraph Web["🌐 Web Server"]
+        end
+
+        subgraph Batch["Batch Server"]
+        end
+    end
+
+    subgraph DataLayer["💾 Data Layer"]
+    Redis[(Redis)]
+    DB[(PostgreSQL)]
+    end
+end
+
+CI --- application
+
+application --> Redis
+application --> DB
+
+User --> Web
+User -->|アニメグッズコレクターサイト内の商品情報クリック| External
+
+Batch -->|商品情報を定期的に収集| External
