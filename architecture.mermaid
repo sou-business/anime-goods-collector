@@ -8,20 +8,17 @@ subgraph ANIME-GOODS-COLLECTOR
     CI["🔧 GitHub Actions (CI)"]
     
     subgraph application
-        subgraph Web["🌐 Web Server"]
-        end
-
-        subgraph Batch["Batch Server"]
-        end
+        Batch["Batch Server"]
+        Web["🌐 Web Server"]
     end
 
     subgraph DataLayer["💾 Data Layer"]
-    Redis[(Redis)]
-    DB[(PostgreSQL)]
+        Redis[(Redis)]
+        DB[(PostgreSQL)]
     end
 end
 
-CI --- application
+CI ---|自動ビルド&テスト| application
 
 application --> Redis
 application --> DB
