@@ -1,9 +1,9 @@
 import { CospaScraper } from '@/infrastructure/scraper/CospaScraper.js';
 import { ProductsRepository } from 'app_common/server';
-import { CommonScraper } from '@/infrastructure/scraper/CommonScraper.js';
+import { CommonScraperService } from '@/application/service/CommonScraperService.js';
 import { logger } from 'app_common/server';
 
-const commonScraper: CommonScraper = new CommonScraper(
+const commonScraper: CommonScraperService = new CommonScraperService(
   new CospaScraper(),
   new ProductsRepository()
 );

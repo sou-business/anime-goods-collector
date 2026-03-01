@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ProductModel } from 'app_common/client';
+import type { ProductEntity } from 'app_common/client';
 import { fetchInternal } from 'app_common/client';
 
 export function useProducts() {
-  const [products, setProducts] = useState<ProductModel[]>([]);
+  const [products, setProducts] = useState<ProductEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,12 +36,12 @@ export function useProducts() {
         throw new Error(`サーバーエラーが発生しました (${res.status})`);
       }
 
-      const data: ProductModel[] = await res.json();
+      const data: ProductEntity[] = await res.json();
       if (!Array.isArray(data)) {
         throw new Error('サーバーからのレスポンス形式が不正です');
       }
 
-      setProducts(data as ProductModel[]);
+      setProducts(data as ProductEntity[]);
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       setError(err instanceof Error ? err.message : '不明なエラーが発生しました');

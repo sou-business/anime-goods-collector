@@ -1,10 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductModel } from 'app_common/server';
+import { ProductEntity } from 'app_common/server';
 
 interface ProductProps {
-    product: ProductModel;
+    product: ProductEntity;
 }
 
 const Product: React.FC<ProductProps> = ({ product }) => {

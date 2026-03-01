@@ -1,13 +1,13 @@
-import { ProductModel } from '@/domain/model/ProductModel.js';
+import { ProductEntity } from '@/domain/entity/ProductEntity.js';
 
 /**
  * 商品情報収集の抽象化
  */
-export interface IProductScraper {
+export interface IProductCollector {
   /**
    * 指定されたURLにアクセスして商品情報を収集する
    * @param url - 商品一覧ページのURL
    * @returns 収集された商品の配列
    */
-  scrapeProducts(url: string): Promise<ProductModel[]>;
+  collectProductsFromUrl(url: string): Promise<ProductEntity[]>;
 }

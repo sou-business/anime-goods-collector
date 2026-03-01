@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProductsRepository } from '@/infrastructure/repository/ProductsRepository.js';
 import * as productsTable from '@/infrastructure/db/productsTable.js';
-import { ProductModel } from '@/domain/model/ProductModel.js';
+import * as cacheService from '@/infrastructure/cache/cacheService.js';
+import { CACHE_KEYS } from '@/infrastructure/cache/sharedCacheKeys.js';
+import { ProductEntity } from '@/domain/entity/ProductEntity.js';
 import { Product } from '@prisma/client';
 
 // productsTableモジュールをモック化
@@ -11,10 +13,18 @@ vi.mock('@/infrastructure/db/productsTable.js', () => ({
   deleteProducts: vi.fn(),
 }));
 
+// キャッシュをモック化（Redisに接続しないようにする）
+vi.mock('@/infrastructure/cache/cacheService.js', () => ({
+  cacheGet: vi.fn(),
+  cacheSet: vi.fn(),
+}));
+
 describe('ProductsRepository', () => {
   let repository: ProductsRepository;
 
   beforeEach(() => {
+    vi.mocked(cacheService.cacheGet).mockResolvedValue(null); // デフォルトはキャッシュミス
+    vi.mocked(cacheService.cacheSet).mockResolvedValue(undefined);
     repository = new ProductsRepository();
   });
 
@@ -42,7 +52,7 @@ describe('ProductsRepository', () => {
       const result = await repository.findAll();
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(ProductModel);
+      expect(result[0]).toBeInstanceOf(ProductEntity);
       expect(result[0].title).toBe('テスト商品1');
       expect(result[0].price).toBe(1000);
       expect(result[0].detailUrl).toBe('https://example.com/product1');
@@ -86,13 +96,28 @@ describe('ProductsRepository', () => {
       expect(result[0].detailUrl).toBe('https://example.com/product');
       expect(result[0].imageUrl).toBeNull();
     });
+
+    it('キャッシュにヒットした場合はDBを呼ばずキャッシュの内容を返すこと', async () => {
+      const cachedProducts = [
+        { id: 1, detailUrl: 'https://example.com/1', title: 'キャッシュ商品', imageUrl: null, price: 500 },
+      ];
+      vi.mocked(cacheService.cacheGet).mockResolvedValue(cachedProducts);
+
+      const result = await repository.findAll();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(ProductEntity);
+      expect(result[0].title).toBe('キャッシュ商品');
+      expect(result[0].price).toBe(500);
+      expect(productsTable.findAllProducts).not.toHaveBeenCalled();
+    });
   });
 
   describe('createProducts', () => {
     it('商品を作成できること', async () => {
-      const products: ProductModel[] = [
-        new ProductModel(null, 'https://example.com/1', '商品1', 'https://example.com/img1.jpg', 1000,),
-        new ProductModel(null, 'https://example.com/2', '商品2', null, 2000),
+      const products: ProductEntity[] = [
+        new ProductEntity(null, 'https://example.com/1', '商品1', 'https://example.com/img1.jpg', 1000,),
+        new ProductEntity(null, 'https://example.com/2', '商品2', null, 2000),
       ];
 
       vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
@@ -112,6 +137,7 @@ describe('ProductsRepository', () => {
           price: 2000
         })
       ]);
+      expect(cacheService.cacheSet).toHaveBeenCalledWith(CACHE_KEYS.PRODUCTS, products);
     });
 
     it('空の配列を渡した場合は何もしないこと', async () => {
@@ -120,24 +146,6 @@ describe('ProductsRepository', () => {
       await repository.saveProducts([]);
 
       expect(productsTable.createProducts).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('deleteAll', () => {
-    it('すべての商品を削除できること', async () => {
-      vi.mocked(productsTable.deleteProducts).mockResolvedValue(5);
-
-      await repository.deleteAll();
-
-      expect(productsTable.deleteProducts).toHaveBeenCalledTimes(1);
-    });
-
-    it('削除対象が0件の場合でもエラーにならないこと', async () => {
-      vi.mocked(productsTable.deleteProducts).mockResolvedValue(0);
-
-      await repository.deleteAll();
-
-      expect(productsTable.deleteProducts).toHaveBeenCalledTimes(1);
     });
   });
 });

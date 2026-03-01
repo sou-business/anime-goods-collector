@@ -1,7 +1,6 @@
-import { ProductModel } from "@/domain/model/ProductModel.js";
+import { ProductEntity } from "@/domain/entity/ProductEntity.js";
 
 export interface IProductRepository {
-  findAll(): Promise<ProductModel[]>;
-  saveProducts(products: ProductModel[]): Promise<void>;
-  deleteAll(ids: number[]): Promise<void>;
+  findAll(): Promise<ProductEntity[]>;
+  saveProducts(products: ProductEntity[]): Promise<void>;
 }

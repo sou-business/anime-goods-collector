@@ -1,15 +1,15 @@
-import type { IProductScraper } from 'app_common/server';
+import type { IProductCollector } from 'app_common/server';
 import type { Element } from 'domhandler';
-import { ProductModel } from 'app_common/server';
+import { ProductEntity } from 'app_common/server';
 import { logger } from 'app_common/server';
 import { fetchExternal } from 'app_common/server';
 import * as cheerio from 'cheerio';
 
-export class CospaScraper implements IProductScraper {
+export class CospaScraper implements IProductCollector {
   readonly siteName = 'Cospa';
   readonly itemSelector = '.item_tn';
 
-  async scrapeProducts(url: string): Promise<ProductModel[]> {
+  async collectProductsFromUrl(url: string): Promise<ProductEntity[]> {
     // サイトにアクセス
     const response = await fetchExternal(url, undefined, undefined);
     const html = await response.text();
@@ -17,8 +17,8 @@ export class CospaScraper implements IProductScraper {
     return this.extractProductsFromHTML(url, cheerio.load(html));
   }
 
-  extractProductsFromHTML(url: string, $: cheerio.CheerioAPI): ProductModel[] {
-    const products: ProductModel[] = [];
+  extractProductsFromHTML(url: string, $: cheerio.CheerioAPI): ProductEntity[] {
+    const products: ProductEntity[] = [];
     // 各アイテムをくくる「アイテムdiv」を探して、収集
     $(this.itemSelector).each((_:number, element:Element) => {
       try {
@@ -38,7 +38,7 @@ export class CospaScraper implements IProductScraper {
         const detailUrl = new URL(detailPath, url).href;
         const imageUrl = new URL(imagePath ?? '', url).href;
         
-        products.push(new ProductModel(
+        products.push(new ProductEntity(
           null,
           detailUrl,
           title,
