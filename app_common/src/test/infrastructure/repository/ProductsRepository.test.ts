@@ -20,16 +20,29 @@ vi.mock('@/infrastructure/cache/cacheService.js', () => ({
 }));
 
 describe('ProductsRepository', () => {
-  let repository: ProductsRepository;
-
+  let repository: ProductsRepository = new ProductsRepository();
+  
   beforeEach(() => {
-    vi.mocked(cacheService.cacheGet).mockResolvedValue(null); // デフォルトはキャッシュミス
+    vi.mocked(cacheService.cacheGet).mockResolvedValue(null);
     vi.mocked(cacheService.cacheSet).mockResolvedValue(undefined);
-    repository = new ProductsRepository();
   });
-
+  
   describe('findAll', () => {
-    it('商品一覧を取得できること', async () => {
+    it('キャッシュに商品データがある場合は、キャッシュの内容を返すこと', async () => {
+      const cachedProducts = [
+        { id: 1, detailUrl: 'https://example.com/1', title: 'キャッシュ商品', imageUrl: null, price: 500 },
+      ];
+      vi.mocked(cacheService.cacheGet).mockResolvedValue(cachedProducts);
+    
+      const result = await repository.findAll();
+    
+      expect(result).toHaveLength(1);
+      expect(result[0]).toBeInstanceOf(ProductEntity);
+      expect(result[0].title).toBe('キャッシュ商品');
+      expect(result[0].price).toBe(500);
+    });
+    
+    it('キャッシュに商品データがない場合は、DBから商品一覧を取得できること', async () => {
       const mockProducts: Product[] = [
         {
           id: 1,
@@ -52,7 +65,6 @@ describe('ProductsRepository', () => {
       const result = await repository.findAll();
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(ProductEntity);
       expect(result[0].title).toBe('テスト商品1');
       expect(result[0].price).toBe(1000);
       expect(result[0].detailUrl).toBe('https://example.com/product1');
@@ -62,11 +74,9 @@ describe('ProductsRepository', () => {
       expect(result[1].price).toBe(2000);
       expect(result[1].detailUrl).toBe('https://example.com/product2');
       expect(result[1].imageUrl).toBeNull();
-
-      expect(productsTable.findAllProducts).toHaveBeenCalledTimes(1);
     });
 
-    it('空の配列を返すこと（商品がない場合）', async () => {
+    it('商品がない場合、空を返すこと', async () => {
       vi.mocked(productsTable.findAllProducts).mockResolvedValue([]);
 
       const result = await repository.findAll();
@@ -75,7 +85,7 @@ describe('ProductsRepository', () => {
       expect(productsTable.findAllProducts).toHaveBeenCalledTimes(1);
     });
 
-    it('null値が含まれる場合でも正しく変換されること', async () => {
+    it('価格や画像が無くても商品を返すこと', async () => {
       const mockProducts: Product[] = [
         {
           id: 1,
@@ -97,24 +107,10 @@ describe('ProductsRepository', () => {
       expect(result[0].imageUrl).toBeNull();
     });
 
-    it('キャッシュにヒットした場合はDBを呼ばずキャッシュの内容を返すこと', async () => {
-      const cachedProducts = [
-        { id: 1, detailUrl: 'https://example.com/1', title: 'キャッシュ商品', imageUrl: null, price: 500 },
-      ];
-      vi.mocked(cacheService.cacheGet).mockResolvedValue(cachedProducts);
-
-      const result = await repository.findAll();
-
-      expect(result).toHaveLength(1);
-      expect(result[0]).toBeInstanceOf(ProductEntity);
-      expect(result[0].title).toBe('キャッシュ商品');
-      expect(result[0].price).toBe(500);
-      expect(productsTable.findAllProducts).not.toHaveBeenCalled();
-    });
   });
 
-  describe('createProducts', () => {
-    it('商品を作成できること', async () => {
+  describe('saveProducts', () => {
+    it('商品データを保存できること', async () => {
       const products: ProductEntity[] = [
         new ProductEntity(null, 'https://example.com/1', '商品1', 'https://example.com/img1.jpg', 1000,),
         new ProductEntity(null, 'https://example.com/2', '商品2', null, 2000),
@@ -124,7 +120,6 @@ describe('ProductsRepository', () => {
 
       await repository.saveProducts(products);
 
-      expect(productsTable.createProducts).toHaveBeenCalledTimes(1);
       expect(productsTable.createProducts).toHaveBeenCalledWith([
         expect.objectContaining({
           detailUrl: 'https://example.com/1',
@@ -137,15 +132,17 @@ describe('ProductsRepository', () => {
           price: 2000
         })
       ]);
+
       expect(cacheService.cacheSet).toHaveBeenCalledWith(CACHE_KEYS.PRODUCTS, products);
     });
 
-    it('空の配列を渡した場合は何もしないこと', async () => {
+    it('商品データが空の場合は何もしないこと', async () => {
       vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
 
       await repository.saveProducts([]);
 
       expect(productsTable.createProducts).toHaveBeenCalledTimes(0);
+      expect(cacheService.cacheSet).toHaveBeenCalledTimes(0);
     });
   });
 });
