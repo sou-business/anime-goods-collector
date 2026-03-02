@@ -4,11 +4,11 @@ import { logger, ProductEntity, ProductsRepository } from 'app_common/server';
 export async function GET() {
     try {
         const repository = new ProductsRepository();
-        const productsFromDB: ProductEntity[] = await repository.findAll();
-        if (productsFromDB.length === 0) {
+        const products: ProductEntity[] = await repository.findAll();
+        if (products.length === 0) {
             return NextResponse.json({ message: '商品データがありません' }, { status: 200 });
         } else {
-            return NextResponse.json(productsFromDB);
+            return NextResponse.json(products);
         }
     } catch (error) {
         const message = error instanceof Error ? error.message : '予期せぬエラーが発生しました';
