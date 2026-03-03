@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "prebuild": "rimraf dist", 
-    "build": "tsc && tsc-alias",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "cross-env BATCH_SCHEDULE=development tsx src/index.ts",
     "start": "cross-env BATCH_SCHEDULE=production tsx src/index.ts",
     "lint": "eslint src/**/*.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "app_common": "*",

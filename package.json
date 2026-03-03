@@ -10,7 +10,8 @@
     "lint:fix": "eslint . --fix",
     "build": "npm run build --workspaces",
     "type-check": "npm run type-check --workspaces",
-    "test:once": "npm run test:once --workspaces --if-present"
+    "test": "npm run test:once --workspaces --if-present",
+    "test:watch": "npm run test:watch --workspaces --if-present"
   },
   "devDependencies": {
     "eslint": "^9.33.0",
@@ -28,7 +29,9 @@
     "ts-node": "^10.9.2",
     "rimraf": "^6.0.0",
     "cross-env": "^10.0.0",
-    "depcheck": "^1.4.7"
+    "depcheck": "^1.4.7",
+    "vitest": "^4.0.0",
+    "@vitest/ui": "^4.0.0"
   },
   "engines": {
     "node": "^22.16.0"
