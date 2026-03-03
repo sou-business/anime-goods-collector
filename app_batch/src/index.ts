@@ -1,7 +1,7 @@
 import cron from 'node-cron';
-import { cospaScrapingJob } from '@/jobs/cospaScraperJob.js';
 import schedule_config from '@config/batch_schedule.json' with { type: 'json' };
 import { logger } from 'app_common/server';
+import { jobs } from '@/jobs/index.js';
 
 interface ScheduleConfig {
   schedule: string;
@@ -19,15 +19,14 @@ function loadConfig(): ScheduleConfig {
 async function main() {
   const config: ScheduleConfig = loadConfig();
 
-  // スケジューラー起動
   logger.info(`📅 スケジューラー起動: ${config.schedule} (${config.timezone})`);
 
-  // 起動直後に一度実行
-  await cospaScrapingJob();
+  // 起動直後に商品情報の収集
+  await executeJobs();
   
   cron.schedule(config.schedule, async () => {
     logger.info(`⏰ ${new Date().toISOString()} - ジョブ開始`);
-    await cospaScrapingJob();
+    await executeJobs();
   }, {
     timezone: config.timezone
   });
@@ -37,3 +36,9 @@ main().catch((err) => {
   logger.error(err.message, err);
   process.exit(1);
 });
+
+async function executeJobs() {
+  for (const job of jobs) {
+    await job();
+  }
+}
