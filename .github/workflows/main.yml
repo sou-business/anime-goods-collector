@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        task: ['type-check', 'test:once']
+        task: ['type-check', 'test']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
