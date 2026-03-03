@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Vitest (app_common)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/app_common",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "src/test", "--watch=false"],
+      "runtimeArgs": ["--inspect-brk"],
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Vitest (app_batch)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/app_batch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "src/test", "--watch=false"],
+      "runtimeArgs": ["--inspect-brk"],
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Vitest (current file)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/app_batch",
+      "program": "${workspaceFolder}/app_batch/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}", "--watch=false"],
+      "runtimeArgs": ["--inspect-brk"],
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
