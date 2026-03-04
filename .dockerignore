@@ -1,0 +1,25 @@
+# ビルド生成物・キャッシュ
+**/node_modules
+**/.next
+**/dist
+**/build
+**/.cache
+**/.npm
+
+# Git 関連
+.git
+.gitignore
+.gitattributes
+
+# 環境変数
+.env
+.env.*
+!.env.example
+
+# テスト・ドキュメント（実行イメージには不要）
+**/tests
+**/__tests__
+**/*.test.ts
+**/*.test.js
+**/docs
+**/*.md
