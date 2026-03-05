@@ -16,26 +16,36 @@ vi.mock('@/infrastructure/db/productsTable.js', () => ({
 // キャッシュをモック化（Redisに接続しないようにする）
 vi.mock('@/infrastructure/cache/cacheService.js', () => ({
   cacheGet: vi.fn(),
-  cacheSet: vi.fn(),
+  cacheMerge: vi.fn(),
 }));
 
 describe('ProductsRepository', () => {
-  let repository: ProductsRepository = new ProductsRepository();
+  let repository: ProductsRepository;
   
   beforeEach(() => {
+    vi.clearAllMocks();
+    repository = new ProductsRepository();
     vi.mocked(cacheService.cacheGet).mockResolvedValue(null);
-    vi.mocked(cacheService.cacheSet).mockResolvedValue(undefined);
+    vi.mocked(cacheService.cacheMerge).mockResolvedValue(undefined);
   });
   
   describe('findAll', () => {
     it('キャッシュに商品データがある場合は、キャッシュの内容を返すこと', async () => {
-      const cachedProducts = [
-        { id: 1, detailUrl: 'https://example.com/1', title: 'キャッシュ商品', imageUrl: null, price: 500 },
-      ];
-      vi.mocked(cacheService.cacheGet).mockResolvedValue(cachedProducts);
+      const cachedProductsMap: Record<string, ProductEntity> = {
+        'https://example.com/1': new ProductEntity(
+          1,
+          'https://example.com/1',
+          'キャッシュ商品',
+          null,
+          500,
+        ),
+      };
+      vi.mocked(cacheService.cacheGet).mockResolvedValue(cachedProductsMap);
     
       const result = await repository.findAll();
     
+      expect(cacheService.cacheGet).toHaveBeenCalledWith(CACHE_KEYS.PRODUCTS);
+      expect(productsTable.findAllProducts).not.toHaveBeenCalled();
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(ProductEntity);
       expect(result[0].title).toBe('キャッシュ商品');
@@ -133,7 +143,51 @@ describe('ProductsRepository', () => {
         })
       ]);
 
-      expect(cacheService.cacheSet).toHaveBeenCalledWith(CACHE_KEYS.PRODUCTS, products);
+      expect(cacheService.cacheMerge).toHaveBeenCalledTimes(1);
+    });
+
+    it('商品がすでにキャッシュに存在している場合も、既存の商品を残したまま新しい商品をキャッシュに追加できること', async () => {
+      const cacheStore: Record<string, ProductEntity> = {
+        'https://example.com/existing': new ProductEntity(
+          1,
+          'https://example.com/existing',
+          '既存商品',
+          null,
+          500,
+        ),
+      };
+
+      vi.mocked(cacheService.cacheMerge).mockImplementation(
+        async (_key: string, value: Partial<Record<string, ProductEntity>>) => {
+          Object.assign(cacheStore, value);
+        },
+      );
+
+      const newProducts: ProductEntity[] = [
+        new ProductEntity(
+          null,
+          'https://example.com/new',
+          '新商品',
+          'https://example.com/new.jpg',
+          1000,
+        ),
+      ];
+
+      vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
+
+      await repository.saveProducts(newProducts);
+
+      expect(Object.keys(cacheStore)).toHaveLength(2);
+      expect(cacheStore['https://example.com/existing']).toBeInstanceOf(ProductEntity);
+      expect(cacheStore['https://example.com/existing'].title).toBe('既存商品');
+      expect(cacheStore['https://example.com/new']).toBeInstanceOf(ProductEntity);
+      expect(cacheStore['https://example.com/new'].title).toBe('新商品');
+      expect(cacheService.cacheMerge).toHaveBeenCalledWith(
+        CACHE_KEYS.PRODUCTS,
+        expect.objectContaining({
+          'https://example.com/new': expect.any(ProductEntity),
+        }),
+      );
     });
 
     it('商品データが空の場合は何もしないこと', async () => {
@@ -142,7 +196,7 @@ describe('ProductsRepository', () => {
       await repository.saveProducts([]);
 
       expect(productsTable.createProducts).toHaveBeenCalledTimes(0);
-      expect(cacheService.cacheSet).toHaveBeenCalledTimes(0);
+      expect(cacheService.cacheMerge).toHaveBeenCalledTimes(0);
     });
   });
 });
