@@ -28,13 +28,12 @@ export class CommonScraperService {
   }
 
   // 指定URLでの商品作成
-  async createProductsFromUrl(
+  async saveProductsFromUrl(
     url: string, 
-  ): Promise<ProductEntity[]> {
+  ){
     const products = await this.scrapeFromUrl(url);
     logger.info(`scraping save start`);
     await this.save(products);
     logger.info(`scraping save end`);
-    return products;
   }
 }

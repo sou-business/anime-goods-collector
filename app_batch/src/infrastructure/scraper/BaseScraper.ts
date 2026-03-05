@@ -5,17 +5,18 @@ import { fetchExternal } from 'app_common/server';
 import { logger } from 'app_common/server';
 import * as cheerio from 'cheerio';
 
-export interface ProductSelectors {
-    title: string;        
-    price: string;        
-    detailPath: string;   
-    imagePath: string;    
+type ExtractionLogic = ($item: cheerio.Cheerio<any>) => string | undefined;
+export interface ProductExtractors {
+    title: ExtractionLogic;
+    price: ExtractionLogic;
+    detailPath: ExtractionLogic;
+    imagePath: ExtractionLogic;  
 }
   
 export abstract class BaseScraper implements IProductCollector {
     abstract readonly siteName: string;
     abstract readonly itemSelector: string;
-    abstract readonly selectors: ProductSelectors;
+    abstract readonly extractors: ProductExtractors;
 
     async collectProductsFromUrl(url: string): Promise<ProductEntity[]> {
         const response = await fetchExternal(url, undefined, undefined);
@@ -28,11 +29,11 @@ export abstract class BaseScraper implements IProductCollector {
         $(this.itemSelector).each((_:number, element) => {
             try {
                 const $item = $(element as Element);
-                const title = $item.find(this.selectors.title).text().trim();
-                const priceText = $item.find(this.selectors.price).text();
-                const price = parseInt(priceText.replace(/[^\d]/g, '')) || 0;
-                const detailPath = $item.find(this.selectors.detailPath).attr('href');
-                const imagePath = $item.find(this.selectors.imagePath).attr('src');
+                const title = this.extractors.title($item) ?? '';
+                const priceText = this.extractors.price($item) ?? '';
+                const price = parseInt(priceText.replace(/[^\d]/g, ''));
+                const detailPath = this.extractors.detailPath($item);
+                const imagePath = this.extractors.imagePath($item);
 
                 if (!detailPath) {
                     logger.warn('商品URLが見つからないため登録をスキップします');

@@ -1,7 +1,8 @@
 import cron from 'node-cron';
 import schedule_config from '@config/batch_schedule.json' with { type: 'json' };
-import { logger } from 'app_common/server';
+import { logger, CACHE_KEYS, cacheDelete} from 'app_common/server';
 import { jobs } from '@/jobs/index.js';
+
 
 interface ScheduleConfig {
   schedule: string;
@@ -16,17 +17,29 @@ function loadConfig(): ScheduleConfig {
   return schedule_config[env];
 }
 
+async function executeJobs() {
+  await cacheDelete(CACHE_KEYS.PRODUCTS);
+  for (const job of jobs) {
+    await job();
+  }
+}
+
+async function runBatchCycle() {
+  // 各バッチのキャッシュに最新の商品情報法をマージするため、開始前にクリア
+  await cacheDelete(CACHE_KEYS.PRODUCTS);
+  await executeJobs();
+}
+
 async function main() {
   const config: ScheduleConfig = loadConfig();
 
   logger.info(`📅 スケジューラー起動: ${config.schedule} (${config.timezone})`);
 
-  // 起動直後に商品情報の収集
-  await executeJobs();
+  await runBatchCycle();
   
   cron.schedule(config.schedule, async () => {
     logger.info(`⏰ ${new Date().toISOString()} - ジョブ開始`);
-    await executeJobs();
+    await runBatchCycle();
   }, {
     timezone: config.timezone
   });
@@ -36,9 +49,3 @@ main().catch((err) => {
   logger.error(err.message, err);
   process.exit(1);
 });
-
-async function executeJobs() {
-  for (const job of jobs) {
-    await job();
-  }
-}

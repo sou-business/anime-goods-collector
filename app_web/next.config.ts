@@ -1,15 +1,17 @@
 import type { NextConfig } from "next";
 
+const domains = [
+  '**.cospa.com',
+  '**.amnibus.com',
+];
+
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.cospa.com',
-      },
-    ],
-  }
+    remotePatterns: domains.map((host) => ({
+      protocol: 'https',
+      hostname: host,
+    })),
+  },
 };
 
 export default nextConfig;

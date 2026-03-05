@@ -1,4 +1,5 @@
 import { ProductEntity } from 'app_common/server';
+import type { ProductExtractors } from '@/infrastructure/scraper/BaseScraper.js';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('app_common/server', async (importOriginal) => ({
@@ -10,7 +11,7 @@ vi.mock('app_common/server', async (importOriginal) => ({
 
 // モック対象モジュールを「後から」読み込むことによって、モックが効かない事故を防ぐ
 const { fetchExternal, logger } = await import('app_common/server');
-const { BaseScraper } = await import('@/infrastructure/scraper/BaseScraper.js');
+const { BaseScraper} = await import('@/infrastructure/scraper/BaseScraper.js');
 
 // 外部サイトへの接続をモック化
 type CollectorLike = { collectProductsFromUrl: (url: string) => Promise<unknown[]> };
@@ -23,11 +24,11 @@ async function collectWithHtml(scraper: CollectorLike, url: string, html: string
 class TestScraper extends BaseScraper {
   readonly siteName = 'test';
   readonly itemSelector = '.item';
-  readonly selectors = {
-    title: '.title',
-    price: '.price',
-    detailPath: '.detail',
-    imagePath: '.img',
+  readonly extractors: ProductExtractors = {
+    title: ($item) => $item.find('.title').text().trim(),
+    price: ($item) => $item.find('.price').text(),
+    detailPath: ($item) => $item.find('.detail').attr('href'),
+    imagePath: ($item) => $item.find('.img').attr('src'),
   };
 }
 

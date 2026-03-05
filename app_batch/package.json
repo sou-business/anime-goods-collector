@@ -16,8 +16,8 @@
     "app_common": "*",
     "cheerio": "^1.1.2",
     "domhandler": "^5.0.3",
-    "ioredis": "^5.7.0",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "redis": "5.11.0"
   },
   "devDependencies": {
     "@types/node-cron": "^3.0.11",
