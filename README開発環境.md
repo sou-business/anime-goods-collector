@@ -1,6 +1,7 @@
 前提   
 ```bash
 OS：windows11
+エディタ：Cursor、VSCode
 ```
 
 gitクローンしたリポジトリ直下で以下を実行   
@@ -26,6 +27,9 @@ npx prisma db push
 特定のファイル実行
 ```bash
 npx tsx ファイルパス
+
+// デバッグしたい場合
+ctrl + shift + pで、デバッグターミナル開いて、上記コマンドを実行すればいい
 ```
 
 errorや問題個所のあるファイル表示(app_common, app_batch直下)
