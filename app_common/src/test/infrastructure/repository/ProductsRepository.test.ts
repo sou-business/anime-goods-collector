@@ -23,7 +23,6 @@ const PRODUCT_B = {
   price: 2000,
 } as const;
 
-/** detailUrl で商品を特定して取り出すヘルパー */
 function findByDetailUrl<T extends { detailUrl: string }>(
   products: T[],
   detailUrl: string,
@@ -33,11 +32,6 @@ function findByDetailUrl<T extends { detailUrl: string }>(
   return found;
 }
 
-/**
- * ProductsRepository の統合テスト。
- * DB（PostgreSQL）と Redis はモックせず実プロセスに接続して検証する。
- * CI では .github/workflows/main.yml の services (db, cache) で起動した実サービスを使用する。
- */
 describe('ProductsRepository (integration)', () => {
   const repository = new ProductsRepository();
 
