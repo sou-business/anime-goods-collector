@@ -10,7 +10,7 @@ export class CommonScraperService {
   ) {}
 
   // 商品をスクレイピングする
-  async scrapeFromUrl(url: string): Promise<ProductEntity[]> {
+  private async scrapeFromUrl(url: string): Promise<ProductEntity[]> {
     const start = Date.now();
 
     logger.info(`Scraping start: ${url}`);
@@ -23,7 +23,7 @@ export class CommonScraperService {
   }
 
   // 商品を保存する
-  async save(products: ProductEntity[]): Promise<void> {
+  private async save(products: ProductEntity[]): Promise<void> {
     await this.repository.saveProducts(products);
   }
 

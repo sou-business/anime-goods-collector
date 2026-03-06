@@ -5,6 +5,7 @@ class 凡例 {
   --> 依存
   --|> 継承
   ..|> インターフェース実装
+  日本語クラス = 概念的な代表表現
 }
 
 namespace app_batch {
@@ -13,22 +14,13 @@ namespace app_batch {
     <<entrypoint>>
   }
 
-  class JobsIndex {
-    +jobs[]
-  }
-
-  class AmnibusScrapingJob {
-    +execute()
-  }
-
-  class CospaScrapingJob {
+  class ジョブ {
     +execute()
   }
 
   class CommonScraperService {
     -scraper: IProductCollector
     -repository: IProductRepository
-    +scrapeFromUrl(url): Promise<ProductEntity[]>
     +saveProductsFromUrl(url): Promise<void>
   }
 
@@ -37,18 +29,19 @@ namespace app_batch {
     +siteName: string
     +itemSelector: string
     +extractors: ProductExtractors
-    +collect(url): Promise<ProductEntity[]>
+    +collectProductsFromUrl(url): Promise<ProductEntity[]>
   }
 
-  class AmnibusScraper {
-    +siteName = "Amnibus"
+  class 継承Scraper {
   }
 
-  class CospaScraper {
-    +siteName = "Cospa"
+  class ProductExtractors {
+    <<interface>>
+    +title: ExtractionLogic
+    +price: ExtractionLogic
+    +detailPath: ExtractionLogic
+    +imagePath: ExtractionLogic
   }
-
-  class ProductExtractors
 
 }
 
@@ -66,13 +59,9 @@ namespace app_common {
 
 }
 
-BatchScheduler_index --> JobsIndex
+BatchScheduler_index --> ジョブ
 
-JobsIndex --> AmnibusScrapingJob
-JobsIndex --> CospaScrapingJob
-
-AmnibusScrapingJob --> CommonScraperService
-CospaScrapingJob --> CommonScraperService
+ジョブ --> CommonScraperService
 
 CommonScraperService --> IProductCollector
 CommonScraperService --> IProductRepository
@@ -80,5 +69,4 @@ CommonScraperService --> IProductRepository
 BaseScraper ..|> IProductCollector
 BaseScraper --> ProductExtractors
 
-AmnibusScraper --|> BaseScraper
-CospaScraper --|> BaseScraper
+継承Scraper --|> BaseScraper
