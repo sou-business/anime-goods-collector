@@ -28,7 +28,7 @@ jobs:
         with:
           name: build-assets
           path: |
-            app_common/dist
+            **/dist
           retention-days: 1
 
   verify:
