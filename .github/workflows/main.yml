@@ -7,10 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        app: ['app_batch', 'app_web']
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,13 +20,13 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./app_common/prisma/schema.prisma
 
-      - name: Build ${{ matrix.app }}
-        run: npx turbo run build --filter=${{ matrix.app }}...
+      - name: Build all packages
+        run: npm run build
 
-      - name: Upload Build Assets (${{ matrix.app }})
+      - name: Upload Build Assets
         uses: actions/upload-artifact@v4
         with:
-          name: build-assets-${{ matrix.app }}
+          name: build-assets
           path: |
             **/dist
           retention-days: 1
