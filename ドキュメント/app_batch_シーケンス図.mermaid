@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant B as Batch Server
+    participant E as 外部サイト
+    participant D as PostgreSQL
+    participant R as Redis
+
+    loop 定期実行
+        Note over B: Application Service
+        B->>E: サイト接続
+        E-->>B: HTMLを返却
+        B->>B: HTMLからデータ抽出 (Scraper)
+        B->>D: 永続化 (Repository)
+        B->>R: キャッシュ更新 (Repository)
+    end

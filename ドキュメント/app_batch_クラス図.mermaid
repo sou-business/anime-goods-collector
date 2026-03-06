@@ -1,0 +1,83 @@
+classDiagram
+
+class 凡例 {
+  --> 依存
+  --|> 継承
+  ..|> インターフェース実装
+}
+
+namespace app_batch {
+
+  class BatchScheduler_index {
+    <<entrypoint>>
+  }
+
+  class JobsIndex {
+    +jobs[]
+  }
+
+  class AmnibusScrapingJob {
+    +execute()
+  }
+
+  class CospaScrapingJob {
+    +execute()
+  }
+
+  class CommonScraperService {
+    -scraper: IProductCollector
+    -repository: IProductRepository
+    +scrapeFromUrl(url): Promise<ProductEntity[]>
+    +saveProductsFromUrl(url): Promise<void>
+  }
+
+  class BaseScraper {
+    <<abstract>>
+    +siteName: string
+    +itemSelector: string
+    +extractors: ProductExtractors
+    +collect(url): Promise<ProductEntity[]>
+  }
+
+  class AmnibusScraper {
+    +siteName = "Amnibus"
+  }
+
+  class CospaScraper {
+    +siteName = "Cospa"
+  }
+
+  class ProductExtractors
+
+}
+
+namespace app_common {
+
+  class IProductCollector {
+    <<interface>>
+    +collect(url): Promise<ProductEntity[]>
+  }
+
+  class IProductRepository {
+    <<interface>>
+    +save(products): Promise<void>
+  }
+
+}
+
+BatchScheduler_index --> JobsIndex
+
+JobsIndex --> AmnibusScrapingJob
+JobsIndex --> CospaScrapingJob
+
+AmnibusScrapingJob --> CommonScraperService
+CospaScrapingJob --> CommonScraperService
+
+CommonScraperService --> IProductCollector
+CommonScraperService --> IProductRepository
+
+BaseScraper ..|> IProductCollector
+BaseScraper --> ProductExtractors
+
+AmnibusScraper --|> BaseScraper
+CospaScraper --|> BaseScraper
