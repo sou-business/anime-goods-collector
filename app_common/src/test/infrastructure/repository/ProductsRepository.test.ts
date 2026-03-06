@@ -1,202 +1,194 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { ProductsRepository } from '@/infrastructure/repository/ProductsRepository.js';
 import * as productsTable from '@/infrastructure/db/productsTable.js';
-import * as cacheService from '@/infrastructure/cache/cacheService.js';
+import { cacheGet, cacheSet, cacheDelete } from '@/infrastructure/cache/cacheService.js';
 import { CACHE_KEYS } from '@/infrastructure/cache/sharedCacheKeys.js';
 import { ProductEntity } from '@/domain/entity/ProductEntity.js';
-import { Product } from '@prisma/client';
 
-// productsTableモジュールをモック化
-vi.mock('@/infrastructure/db/productsTable.js', () => ({
-  findAllProducts: vi.fn(),
-  createProducts: vi.fn(),
-  deleteProducts: vi.fn(),
-}));
+const BASE_URL = 'https://example.com';
 
-// キャッシュをモック化（Redisに接続しないようにする）
-vi.mock('@/infrastructure/cache/cacheService.js', () => ({
-  cacheGet: vi.fn(),
-  cacheMerge: vi.fn(),
-}));
+const PRODUCT_A = {
+  detailUrl: `${BASE_URL}/1`,
+  productUrl: `${BASE_URL}/product1`,
+  imageUrl: `${BASE_URL}/img1.jpg`,
+  title: '商品A',
+  price: 1000,
+} as const;
 
-describe('ProductsRepository', () => {
-  let repository: ProductsRepository;
-  
-  beforeEach(() => {
-    vi.clearAllMocks();
-    repository = new ProductsRepository();
-    vi.mocked(cacheService.cacheGet).mockResolvedValue(null);
-    vi.mocked(cacheService.cacheMerge).mockResolvedValue(undefined);
+const PRODUCT_B = {
+  detailUrl: `${BASE_URL}/2`,
+  productUrl: `${BASE_URL}/product2`,
+  imageUrl: `${BASE_URL}/img2.jpg`,
+  title: '商品B',
+  price: 2000,
+} as const;
+
+/** detailUrl で商品を特定して取り出すヘルパー */
+function findByDetailUrl<T extends { detailUrl: string }>(
+  products: T[],
+  detailUrl: string,
+): T {
+  const found = products.find((p) => p.detailUrl === detailUrl);
+  if (!found) throw new Error(`商品が見つかりません: ${detailUrl}`);
+  return found;
+}
+
+/**
+ * ProductsRepository の統合テスト。
+ * DB（PostgreSQL）と Redis はモックせず実プロセスに接続して検証する。
+ * CI では .github/workflows/main.yml の services (db, cache) で起動した実サービスを使用する。
+ */
+describe('ProductsRepository (integration)', () => {
+  const repository = new ProductsRepository();
+
+  beforeEach(async () => {
+    await cacheDelete(CACHE_KEYS.PRODUCTS);
+    await productsTable.deleteProducts();
   });
-  
+
+  afterAll(async () => {
+    await cacheDelete(CACHE_KEYS.PRODUCTS);
+    await productsTable.deleteProducts();
+  });
+
   describe('findAll', () => {
     it('キャッシュに商品データがある場合は、キャッシュの内容を返すこと', async () => {
-      const cachedProductsMap: Record<string, ProductEntity> = {
-        'https://example.com/1': new ProductEntity(
-          1,
-          'https://example.com/1',
-          'キャッシュ商品',
-          null,
-          500,
-        ),
+      const cachedProductsMap = {
+        [PRODUCT_A.detailUrl]: {
+          id: 1,
+          detailUrl: PRODUCT_A.detailUrl,
+          title: PRODUCT_A.title,
+          imageUrl: null,
+          price: PRODUCT_A.price,
+        },
       };
-      vi.mocked(cacheService.cacheGet).mockResolvedValue(cachedProductsMap);
-    
+      await cacheSet(CACHE_KEYS.PRODUCTS, cachedProductsMap);
+
       const result = await repository.findAll();
-    
-      expect(cacheService.cacheGet).toHaveBeenCalledWith(CACHE_KEYS.PRODUCTS);
-      expect(productsTable.findAllProducts).not.toHaveBeenCalled();
+
       expect(result).toHaveLength(1);
       expect(result[0]).toBeInstanceOf(ProductEntity);
-      expect(result[0].title).toBe('キャッシュ商品');
-      expect(result[0].price).toBe(500);
+      expect(result[0].title).toBe(PRODUCT_A.title);
+      expect(result[0].price).toBe(PRODUCT_A.price);
     });
-    
+
     it('キャッシュに商品データがない場合は、DBから商品一覧を取得できること', async () => {
-      const mockProducts: Product[] = [
+      await productsTable.createProducts([
         {
-          id: 1,
-          detailUrl: 'https://example.com/product1',
-          title: 'テスト商品1',
-          price: 1000,
-          imageUrl: 'https://example.com/image1.jpg',
+          detailUrl: PRODUCT_A.detailUrl,
+          title: PRODUCT_A.title,
+          price: PRODUCT_A.price,
+          imageUrl: PRODUCT_A.imageUrl,
         },
         {
-          id: 2,
-          detailUrl: 'https://example.com/product2',
-          title: 'テスト商品2',
-          price: 2000,
+          detailUrl: PRODUCT_B.detailUrl,
+          title: PRODUCT_B.title,
+          price: PRODUCT_B.price,
           imageUrl: null,
         },
-      ];
-
-      vi.mocked(productsTable.findAllProducts).mockResolvedValue(mockProducts);
+      ]);
 
       const result = await repository.findAll();
 
       expect(result).toHaveLength(2);
-      expect(result[0].title).toBe('テスト商品1');
-      expect(result[0].price).toBe(1000);
-      expect(result[0].detailUrl).toBe('https://example.com/product1');
-      expect(result[0].imageUrl).toBe('https://example.com/image1.jpg');
-
-      expect(result[1].title).toBe('テスト商品2');
-      expect(result[1].price).toBe(2000);
-      expect(result[1].detailUrl).toBe('https://example.com/product2');
-      expect(result[1].imageUrl).toBeNull();
+      const productA = findByDetailUrl(result, PRODUCT_A.detailUrl);
+      const productB = findByDetailUrl(result, PRODUCT_B.detailUrl);
+      expect(productA.title).toBe(PRODUCT_A.title);
+      expect(productA.price).toBe(PRODUCT_A.price);
+      expect(productA.imageUrl).toBe(PRODUCT_A.imageUrl);
+      expect(productB.title).toBe(PRODUCT_B.title);
+      expect(productB.price).toBe(PRODUCT_B.price);
+      expect(productB.imageUrl).toBeNull();
     });
 
     it('商品がない場合、空を返すこと', async () => {
-      vi.mocked(productsTable.findAllProducts).mockResolvedValue([]);
-
       const result = await repository.findAll();
 
       expect(result).toHaveLength(0);
-      expect(productsTable.findAllProducts).toHaveBeenCalledTimes(1);
     });
 
     it('価格や画像が無くても商品を返すこと', async () => {
-      const mockProducts: Product[] = [
+      await productsTable.createProducts([
         {
-          id: 1,
-          detailUrl: 'https://example.com/product',
-          title: 'テスト商品',
+          detailUrl: PRODUCT_A.detailUrl,
+          title: PRODUCT_A.title,
           price: null,
           imageUrl: null,
         },
-      ];
-
-      vi.mocked(productsTable.findAllProducts).mockResolvedValue(mockProducts);
+      ]);
 
       const result = await repository.findAll();
 
       expect(result).toHaveLength(1);
-      expect(result[0].title).toBe('テスト商品');
+      expect(result[0].title).toBe(PRODUCT_A.title);
       expect(result[0].price).toBeNull();
-      expect(result[0].detailUrl).toBe('https://example.com/product');
+      expect(result[0].detailUrl).toBe(PRODUCT_A.detailUrl);
       expect(result[0].imageUrl).toBeNull();
     });
-
   });
 
   describe('saveProducts', () => {
     it('商品データを保存できること', async () => {
       const products: ProductEntity[] = [
-        new ProductEntity(null, 'https://example.com/1', '商品1', 'https://example.com/img1.jpg', 1000,),
-        new ProductEntity(null, 'https://example.com/2', '商品2', null, 2000),
+        new ProductEntity(null, PRODUCT_A.detailUrl, PRODUCT_A.title, PRODUCT_A.imageUrl, PRODUCT_A.price),
+        new ProductEntity(null, PRODUCT_B.detailUrl, PRODUCT_B.title, null, PRODUCT_B.price),
       ];
-
-      vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
 
       await repository.saveProducts(products);
 
-      expect(productsTable.createProducts).toHaveBeenCalledWith([
-        expect.objectContaining({
-          detailUrl: 'https://example.com/1',
-          title: '商品1',
-          price: 1000
-        }),
-        expect.objectContaining({
-          detailUrl: 'https://example.com/2',
-          title: '商品2',
-          price: 2000
-        })
-      ]);
+      const fromDb = await productsTable.findAllProducts();
+      expect(fromDb).toHaveLength(2);
+      const productA = findByDetailUrl(fromDb, PRODUCT_A.detailUrl);
+      expect(productA.title).toBe(PRODUCT_A.title);
+      expect(productA.price).toBe(PRODUCT_A.price);
+      const productB = findByDetailUrl(fromDb, PRODUCT_B.detailUrl);
+      expect(productB.title).toBe(PRODUCT_B.title);
+      expect(productB.price).toBe(PRODUCT_B.price);
 
-      expect(cacheService.cacheMerge).toHaveBeenCalledTimes(1);
+      const fromCache = await cacheGet<Record<string, { title: string; price: number | null }>>(CACHE_KEYS.PRODUCTS);
+      expect(fromCache).not.toBeNull();
+      expect(Object.keys(fromCache!).length).toBe(2);
+      const cachedProductA = fromCache![PRODUCT_A.detailUrl];
+      expect(cachedProductA.title).toBe(PRODUCT_A.title);
+      expect(cachedProductA.price).toBe(PRODUCT_A.price);
+      const cachedProductB = fromCache![PRODUCT_B.detailUrl];
+      expect(cachedProductB.title).toBe(PRODUCT_B.title);
+      expect(cachedProductB.price).toBe(PRODUCT_B.price);
     });
 
     it('商品がすでにキャッシュに存在している場合も、既存の商品を残したまま新しい商品をキャッシュに追加できること', async () => {
-      const cacheStore: Record<string, ProductEntity> = {
-        'https://example.com/existing': new ProductEntity(
-          1,
-          'https://example.com/existing',
-          '既存商品',
-          null,
-          500,
-        ),
-      };
-
-      vi.mocked(cacheService.cacheMerge).mockImplementation(
-        async (_key: string, value: Partial<Record<string, ProductEntity>>) => {
-          Object.assign(cacheStore, value);
+      const existingMap = {
+        [PRODUCT_A.detailUrl]: {
+          id: 1,
+          detailUrl: PRODUCT_A.detailUrl,
+          title: PRODUCT_A.title,
+          imageUrl: null,
+          price: PRODUCT_A.price,
         },
-      );
+      };
+      await cacheSet(CACHE_KEYS.PRODUCTS, existingMap);
 
       const newProducts: ProductEntity[] = [
-        new ProductEntity(
-          null,
-          'https://example.com/new',
-          '新商品',
-          'https://example.com/new.jpg',
-          1000,
-        ),
+        new ProductEntity(null, PRODUCT_B.detailUrl, PRODUCT_B.title, PRODUCT_B.imageUrl, PRODUCT_B.price),
       ];
-
-      vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
-
       await repository.saveProducts(newProducts);
 
-      expect(Object.keys(cacheStore)).toHaveLength(2);
-      expect(cacheStore['https://example.com/existing']).toBeInstanceOf(ProductEntity);
-      expect(cacheStore['https://example.com/existing'].title).toBe('既存商品');
-      expect(cacheStore['https://example.com/new']).toBeInstanceOf(ProductEntity);
-      expect(cacheStore['https://example.com/new'].title).toBe('新商品');
-      expect(cacheService.cacheMerge).toHaveBeenCalledWith(
-        CACHE_KEYS.PRODUCTS,
-        expect.objectContaining({
-          'https://example.com/new': expect.any(ProductEntity),
-        }),
-      );
+      const fromCache = await cacheGet<Record<string, { title: string }>>(CACHE_KEYS.PRODUCTS);
+      expect(fromCache).not.toBeNull();
+      expect(Object.keys(fromCache!).length).toBe(2);
+      const cachedProductA = fromCache![PRODUCT_A.detailUrl];
+      const cachedProductB = fromCache![PRODUCT_B.detailUrl];
+      expect(cachedProductA.title).toBe(PRODUCT_A.title);
+      expect(cachedProductB.title).toBe(PRODUCT_B.title);
     });
 
     it('商品データが空の場合は何もしないこと', async () => {
-      vi.mocked(productsTable.createProducts).mockResolvedValue(undefined);
-
       await repository.saveProducts([]);
 
-      expect(productsTable.createProducts).toHaveBeenCalledTimes(0);
-      expect(cacheService.cacheMerge).toHaveBeenCalledTimes(0);
+      const fromDb = await productsTable.findAllProducts();
+      expect(fromDb).toHaveLength(0);
+      const fromCache = await cacheGet<Record<string, unknown>>(CACHE_KEYS.PRODUCTS);
+      expect(fromCache).toBeNull();
     });
   });
 });

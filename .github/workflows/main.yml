@@ -2,9 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -39,6 +37,32 @@ jobs:
     strategy:
       matrix:
         task: ['type-check', 'test']
+
+    services:
+      db:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: anime_collect
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d anime_collect"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      cache:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,5 +81,16 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate --schema=./app_common/prisma/schema.prisma
 
+      - name: Apply DB schema
+        # type-check タスクではDBへの接続不要なのでtestのみ実行
+        if: matrix.task == 'test'
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anime_collect?schema=public
+        run: npx prisma db push --schema=./app_common/prisma/schema.prisma
+
       - name: Run ${{ matrix.task }}
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anime_collect?schema=public
+          CACHE_HOST: localhost
+          CACHE_PORT: 6379
         run: npm run ${{ matrix.task }}
