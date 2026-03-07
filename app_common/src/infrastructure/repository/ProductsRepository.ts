@@ -14,12 +14,11 @@ export class ProductsRepository implements IProductRepository {
     }
 
     const products: Product[] = await findAllProducts();
-    return products.map(product => new ProductEntity(
-      product.id,
+    return products.map((product: Product) => new ProductEntity(
       product.detailUrl,
+      product.imageUrl,
       product.title,
-      product.imageUrl ?? null,
-      product.price ?? null
+      product.price
     ));
   }
 
@@ -27,9 +26,9 @@ export class ProductsRepository implements IProductRepository {
     if (products.length === 0) return;
     const productData: Prisma.ProductCreateManyInput[] = products.map(product => ({
       detailUrl: product.detailUrl,
+      imageUrl: product.imageUrl,
       title: product.title,
-      price: product.price ?? null,
-      imageUrl: product.imageUrl ?? null,
+      price: product.price,
     }));
 
     await createProducts(productData);
@@ -47,7 +46,6 @@ export class ProductsRepository implements IProductRepository {
     const productsMap = await cacheGet<Record<string, ProductEntity>>(CACHE_KEYS.PRODUCTS);
     if (!productsMap) return [];
     return Object.values(productsMap).map(product => new ProductEntity(
-      product.id,
       product.detailUrl,
       product.title,
       product.imageUrl,

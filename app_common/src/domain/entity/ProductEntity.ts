@@ -1,19 +1,38 @@
 export class ProductEntity {
     constructor(
-        public readonly id: number | null,
         public readonly detailUrl: string,
+        public readonly imageUrl: string,
         public readonly title: string,
-        public readonly imageUrl: string | null,
-        public readonly price: number | null
+        public readonly price: number
     ) {
-        if (!detailUrl) throw new Error('detailUrlは必須です');
+        this.validateRequired(detailUrl, 'detailUrl');
+        this.validateRequired(imageUrl, 'imageUrl');
+        this.validateRequired(title, 'title');
         this.validateUrl(detailUrl);
-        
-        if (!title) throw new Error('titleは必須です');
-        
-        if (imageUrl) this.validateUrl(imageUrl);
-        
-        if (price !== null && price < 0) throw new Error('priceは0以上である必要があります');
+        this.validateUrl(imageUrl);
+        if (price < 0) throw new Error('priceは0以上である必要があります');
+    }
+
+    /**
+   * 外部データ（Raw Data）をドメインモデルとして「構成」する
+   */
+    static fromRawData(
+        baseUrl: string,
+        detailPath: string,
+        imagePath: string,
+        rawTitle: string,
+        rawPrice: string
+    ): ProductEntity {
+        const detailUrl = new URL(detailPath, baseUrl).href;
+        const imageUrl = new URL(imagePath, baseUrl).href;
+        const price = parseInt(rawPrice.replace(/[^\d]/g, ''));
+
+        return new ProductEntity(
+            detailUrl,
+            imageUrl,
+            rawTitle,
+            price
+        );
     }
 
     private validateUrl(url: string): void {
@@ -27,4 +46,9 @@ export class ProductEntity {
             throw new Error('URLはhttp/https形式である必要があります');
         }
     }
-}   
+
+    private validateRequired(value: string, fieldName: string): void {
+        if (!value) throw new Error(`${fieldName}は必須です`);
+    }
+
+}

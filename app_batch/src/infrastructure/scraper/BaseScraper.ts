@@ -5,7 +5,7 @@ import { fetchExternal } from 'app_common/server';
 import { logger } from 'app_common/server';
 import * as cheerio from 'cheerio';
 
-type ExtractionLogic = ($item: cheerio.Cheerio<any>) => string | undefined;
+type ExtractionLogic = ($item: cheerio.Cheerio<any>) => string;
 export interface ProductExtractors {
     title: ExtractionLogic;
     price: ExtractionLogic;
@@ -29,24 +29,17 @@ export abstract class BaseScraper implements IProductCollector {
         $(this.itemSelector).each((_:number, element) => {
             try {
                 const $item = $(element as Element);
-                const title = this.extractors.title($item) ?? '';
-                const priceText = this.extractors.price($item) ?? '';
-                const price = parseInt(priceText.replace(/[^\d]/g, ''));
                 const detailPath = this.extractors.detailPath($item);
-                const imagePath = this.extractors.imagePath($item);
-
                 if (!detailPath) {
                     logger.warn('商品URLが見つからないため登録をスキップします');
                     return;
                 }
+                const imagePath = this.extractors.imagePath($item);
+                const title = this.extractors.title($item);
+                const price = this.extractors.price($item);
 
-                products.push(new ProductEntity(
-                    null,
-                    new URL(detailPath, url).href,
-                    title,
-                    new URL(imagePath ?? '', url).href,
-                    price
-                ));
+                products.push(ProductEntity.fromRawData(url, detailPath, imagePath, title, price));
+
             } catch (error) {
                 logger.error('アイテム解析失敗', error);
             }

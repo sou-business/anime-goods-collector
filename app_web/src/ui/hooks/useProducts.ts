@@ -26,13 +26,6 @@ export function useProducts() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => null); 
-
-        // 独自エラー（messageフィールドがある場合）か判断
-        if (errorData && errorData.message) {
-          throw new Error(errorData.message);
-        }
-
-        // 3. それ以外500エラー等
         throw new Error(`サーバーエラーが発生しました (${res.status})`);
       }
 

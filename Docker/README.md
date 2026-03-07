@@ -38,6 +38,9 @@ docker-compose stop
 // 動いてないコンテナ全削除。データ残したいときは「-v」を外す。生成時のログ見たい場合は「-d」外す
 docker-compose down -v
 
+// 未使用のボリューム削除
+docker volume prune -f
+
 // 強制的に動いてるイメージもコンテナもボリュームもすべて削除
 docker-compose down --volumes --rmi all
 ```

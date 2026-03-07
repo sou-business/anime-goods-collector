@@ -8,16 +8,16 @@ import { ProductEntity } from '@/domain/entity/ProductEntity.js';
 const BASE_URL = 'https://example.com';
 
 const PRODUCT_A = {
-  detailUrl: `${BASE_URL}/1`,
   productUrl: `${BASE_URL}/product1`,
+  detailUrl: `${BASE_URL}/1`,
   imageUrl: `${BASE_URL}/img1.jpg`,
   title: '商品A',
   price: 1000,
 } as const;
 
 const PRODUCT_B = {
-  detailUrl: `${BASE_URL}/2`,
   productUrl: `${BASE_URL}/product2`,
+  detailUrl: `${BASE_URL}/2`,
   imageUrl: `${BASE_URL}/img2.jpg`,
   title: '商品B',
   price: 2000,
@@ -46,13 +46,12 @@ describe('ProductsRepository (integration)', () => {
   });
 
   describe('findAll', () => {
-    it('キャッシュに商品データがある場合は、キャッシュの内容を返すこと', async () => {
+    it('キャッシュに商品データがある場合は、キャッシュから商品一覧を取得できること', async () => {
       const cachedProductsMap = {
         [PRODUCT_A.detailUrl]: {
-          id: 1,
           detailUrl: PRODUCT_A.detailUrl,
+          imageUrl: PRODUCT_A.imageUrl,
           title: PRODUCT_A.title,
-          imageUrl: null,
           price: PRODUCT_A.price,
         },
       };
@@ -70,15 +69,15 @@ describe('ProductsRepository (integration)', () => {
       await productsTable.createProducts([
         {
           detailUrl: PRODUCT_A.detailUrl,
+          imageUrl: PRODUCT_A.imageUrl,
           title: PRODUCT_A.title,
           price: PRODUCT_A.price,
-          imageUrl: PRODUCT_A.imageUrl,
         },
         {
           detailUrl: PRODUCT_B.detailUrl,
+          imageUrl: PRODUCT_B.imageUrl,
           title: PRODUCT_B.title,
           price: PRODUCT_B.price,
-          imageUrl: null,
         },
       ]);
 
@@ -92,7 +91,7 @@ describe('ProductsRepository (integration)', () => {
       expect(productA.imageUrl).toBe(PRODUCT_A.imageUrl);
       expect(productB.title).toBe(PRODUCT_B.title);
       expect(productB.price).toBe(PRODUCT_B.price);
-      expect(productB.imageUrl).toBeNull();
+      expect(productB.imageUrl).toBe(PRODUCT_B.imageUrl);
     });
 
     it('商品がない場合、空を返すこと', async () => {
@@ -101,31 +100,13 @@ describe('ProductsRepository (integration)', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('価格や画像が無くても商品を返すこと', async () => {
-      await productsTable.createProducts([
-        {
-          detailUrl: PRODUCT_A.detailUrl,
-          title: PRODUCT_A.title,
-          price: null,
-          imageUrl: null,
-        },
-      ]);
-
-      const result = await repository.findAll();
-
-      expect(result).toHaveLength(1);
-      expect(result[0].title).toBe(PRODUCT_A.title);
-      expect(result[0].price).toBeNull();
-      expect(result[0].detailUrl).toBe(PRODUCT_A.detailUrl);
-      expect(result[0].imageUrl).toBeNull();
-    });
   });
 
   describe('saveProducts', () => {
     it('商品データを保存できること', async () => {
       const products: ProductEntity[] = [
-        new ProductEntity(null, PRODUCT_A.detailUrl, PRODUCT_A.title, PRODUCT_A.imageUrl, PRODUCT_A.price),
-        new ProductEntity(null, PRODUCT_B.detailUrl, PRODUCT_B.title, null, PRODUCT_B.price),
+        new ProductEntity(PRODUCT_A.detailUrl, PRODUCT_A.title, PRODUCT_A.imageUrl, PRODUCT_A.price),
+        new ProductEntity(PRODUCT_B.detailUrl, PRODUCT_B.title, PRODUCT_B.imageUrl, PRODUCT_B.price),
       ];
 
       await repository.saveProducts(products);
@@ -153,17 +134,16 @@ describe('ProductsRepository (integration)', () => {
     it('商品がすでにキャッシュに存在している場合も、既存の商品を残したまま新しい商品をキャッシュに追加できること', async () => {
       const existingMap = {
         [PRODUCT_A.detailUrl]: {
-          id: 1,
           detailUrl: PRODUCT_A.detailUrl,
+          imageUrl: PRODUCT_A.imageUrl,
           title: PRODUCT_A.title,
-          imageUrl: null,
           price: PRODUCT_A.price,
         },
       };
       await cacheSet(CACHE_KEYS.PRODUCTS, existingMap);
 
       const newProducts: ProductEntity[] = [
-        new ProductEntity(null, PRODUCT_B.detailUrl, PRODUCT_B.title, PRODUCT_B.imageUrl, PRODUCT_B.price),
+        new ProductEntity(PRODUCT_B.detailUrl, PRODUCT_B.title, PRODUCT_B.imageUrl, PRODUCT_B.price),
       ];
       await repository.saveProducts(newProducts);
 
