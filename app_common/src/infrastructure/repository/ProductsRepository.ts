@@ -47,8 +47,8 @@ export class ProductsRepository implements IProductRepository {
     if (!productsMap) return [];
     return Object.values(productsMap).map(product => new ProductEntity(
       product.detailUrl,
-      product.title,
       product.imageUrl,
+      product.title,
       product.price
     ));
   }

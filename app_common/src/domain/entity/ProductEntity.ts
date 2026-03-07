@@ -1,3 +1,5 @@
+
+
 export class ProductEntity {
     constructor(
         public readonly detailUrl: string,
@@ -40,10 +42,10 @@ export class ProductEntity {
         try {
             parsed = new URL(url);
         } catch {
-            throw new Error('URLが不正な形式です');
+            throw new Error(`URLが不正な形式です：${url}`);
         }
         if (!['http:', 'https:'].includes(parsed.protocol)) {
-            throw new Error('URLはhttp/https形式である必要があります');
+            throw new Error(`URLはhttp/https形式である必要があります：${url}`);
         }
     }
 

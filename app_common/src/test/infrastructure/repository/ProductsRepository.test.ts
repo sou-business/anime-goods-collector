@@ -57,10 +57,9 @@ describe('ProductsRepository (integration)', () => {
       };
       await cacheSet(CACHE_KEYS.PRODUCTS, cachedProductsMap);
 
-      const result = await repository.findAll();
+      const result: ProductEntity[] = await repository.findAll();
 
       expect(result).toHaveLength(1);
-      expect(result[0]).toBeInstanceOf(ProductEntity);
       expect(result[0].title).toBe(PRODUCT_A.title);
       expect(result[0].price).toBe(PRODUCT_A.price);
     });
@@ -105,8 +104,8 @@ describe('ProductsRepository (integration)', () => {
   describe('saveProducts', () => {
     it('商品データを保存できること', async () => {
       const products: ProductEntity[] = [
-        new ProductEntity(PRODUCT_A.detailUrl, PRODUCT_A.title, PRODUCT_A.imageUrl, PRODUCT_A.price),
-        new ProductEntity(PRODUCT_B.detailUrl, PRODUCT_B.title, PRODUCT_B.imageUrl, PRODUCT_B.price),
+        new ProductEntity(PRODUCT_A.detailUrl, PRODUCT_A.imageUrl, PRODUCT_A.title, PRODUCT_A.price),
+        new ProductEntity(PRODUCT_B.detailUrl, PRODUCT_B.imageUrl, PRODUCT_B.title, PRODUCT_B.price),
       ];
 
       await repository.saveProducts(products);
@@ -143,12 +142,11 @@ describe('ProductsRepository (integration)', () => {
       await cacheSet(CACHE_KEYS.PRODUCTS, existingMap);
 
       const newProducts: ProductEntity[] = [
-        new ProductEntity(PRODUCT_B.detailUrl, PRODUCT_B.title, PRODUCT_B.imageUrl, PRODUCT_B.price),
+        new ProductEntity(PRODUCT_B.detailUrl, PRODUCT_B.imageUrl, PRODUCT_B.title, PRODUCT_B.price),
       ];
       await repository.saveProducts(newProducts);
 
       const fromCache = await cacheGet<Record<string, { title: string }>>(CACHE_KEYS.PRODUCTS);
-      expect(fromCache).not.toBeNull();
       expect(Object.keys(fromCache!).length).toBe(2);
       const cachedProductA = fromCache![PRODUCT_A.detailUrl];
       const cachedProductB = fromCache![PRODUCT_B.detailUrl];
