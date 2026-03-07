@@ -51,15 +51,15 @@ services:
         condition: service_healthy
     restart: no
     volumes:
+      # ホスト側をマウントして、コードの反映を「docker-compose up」で可能にする。無いと「docker-compose up --build」でコンテナを再作成する必要がある。
       - ../:/app
+      # ホスト側のフォルダがコンテナ内のライブラリを上書きするのを防ぐ。ホスト側の状態に依存せず、コンテナ内で完結する。
       - /app/node_modules
-      # ホスト側の空のフォルダがコンテナ内のライブラリを上書きするのを防ぐ
       - /app/app_batch/node_modules
       - /app/app_common/node_modules
       - /app/app_common/dist
     command: >
-      sh -c "npx turbo run build --filter=app_batch... && 
-             npx prisma db push --schema=./app_common/prisma/schema.prisma && 
+      sh -c "npx prisma db push --schema=./app_common/prisma/schema.prisma && 
              npm run dev --workspace=app_batch"
 
   # Webアプリケーション
@@ -83,12 +83,11 @@ services:
     volumes:
       - ../:/app
       - /app/node_modules
-      # ホスト側の空のフォルダがコンテナ内のライブラリを上書きするのを防ぐ
       - /app/app_common/node_modules
       - /app/app_web/node_modules
       - /app/app_common/dist
     command: >
-      sh -c "npx turbo run build --filter=app_web... && npm run dev --workspace=app_web"
+      sh -c "npm run dev --workspace=app_web"
 
 volumes:
   db-store:
