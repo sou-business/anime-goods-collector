@@ -1,15 +1,16 @@
 %%{init: {'theme': 'dark', 'themeVariables': { 'lineColor': '#ffffffff' }}}%%
 sequenceDiagram
     participant B as Batch Server
-    participant E as 外部サイト
-    participant D as PostgreSQL
     participant R as Redis
+    participant D as PostgreSQL
+    participant E as 外部サイト
 
+    B->>B: 商品キャッシュを削除 (Repository)
     loop 定期実行
         Note over B: Application Service
-        B->>E: サイト接続
-        E-->>B: HTMLを返却
-        B->>B: HTMLからデータ抽出 (Scraper)
-        B->>D: 永続化 (Repository)
-        B->>R: キャッシュ更新 (Repository)
+        B->>E: サイト接続 (Scraper)
+        E-->>B: HTMLを返却 (Scraper)
+        B->>B: HTMLから商品データ抽出 (Scraper)
+        B->>D: 商品データ永続化 (Repository)
+        B->>R: 商品データを商品キャッシュにマージ (Repository)
     end
