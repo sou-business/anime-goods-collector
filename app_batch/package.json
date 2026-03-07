@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "prebuild": "rimraf dist", 
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "cross-env BATCH_SCHEDULE=development tsx src/index.ts",
     "start": "cross-env BATCH_SCHEDULE=production tsx src/index.ts",
