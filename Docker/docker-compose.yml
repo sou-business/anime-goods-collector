@@ -54,10 +54,10 @@ services:
       # ホスト側をマウントして、コードの反映を「docker-compose up」(コンテナ再起動)で可能にする。無いと「docker-compose up --build」（コンテナを再作成）する必要がある。
       - ../:/app
       # ホスト側とコンテナ側が干渉しないようにコンテナ内で生成するものを保護する。
-      - /app/node_modules
-      - /app/app_common/node_modules
-      - /app/app_common/dist
-      - /app/app_batch/node_modules
+      - root_node_modules:/app/node_modules
+      - common_node_modules:/app/app_common/node_modules
+      - common_dist:/app/app_common/dist
+      - batch_node_modules:/app/app_batch/node_modules
     command: >
       sh -c "npx turbo run build --filter=app_common --force &&
              npx prisma db push --schema=./app_common/prisma/schema.prisma && 
@@ -84,14 +84,21 @@ services:
     volumes:
       # ホスト側をマウントして、ホットリロードを可能にする。app_webに関してはコード反映はコンテナ再起動も不要
       - ../:/app
-      - /app/node_modules
-      - /app/app_common/node_modules
-      - /app/app_common/dist
-      - /app/app_web/node_modules
-      - /app/app_web/.next
+      - root_node_modules:/app/node_modules
+      - common_node_modules:/app/app_common/node_modules
+      - common_dist:/app/app_common/dist
+      - web_node_modules:/app/app_web/node_modules
+      - web_next:/app/app_web/.next
     command: >
       sh -c "npx turbo run build --filter=app_common --force &&
              npm run dev --workspace=app_web"
 
 volumes:
   db-store:
+  volumes:
+  root_node_modules:
+  common_node_modules:
+  common_dist:
+  batch_node_modules:
+  web_node_modules:
+  web_next:
