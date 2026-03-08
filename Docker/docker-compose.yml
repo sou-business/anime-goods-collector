@@ -95,7 +95,6 @@ services:
 
 volumes:
   db-store:
-  volumes:
   root_node_modules:
   common_node_modules:
   common_dist:
