@@ -14,9 +14,19 @@ docker desktop を起動
 docker-compose up -d
 ```
 
-docker desktopのContainers見て「anime-collect」配下のコンテナが全て起動（Actionsが■）していればOK。
+docker desktopのContainers見て「anime-collect」配下のコンテナが全て起動（Actionsが■）していればOK。  
 
-### 最新コードでコンテナを再ビルドしたい場合
+## 3. Docker Desktopで確認
+2. が完了したらDocker Desktopを開いて   
+Imagesに「redis、postgres、anime-collect-batch、anime-collect-web」
+Containersに「anime-collect」ができる。
+不要になればそれらを削除すればいい。
+
+## 4. 実際にサイトを開く
+http://localhost:3000/ にアクセスして、ドキュメントディレクトリにある「ドキュメント/実際の画像.png」のようなサイトが表示されれば完了
+
+
+### docker-compose コマンド一覧
 
 コンテナ生成（web、batchを再ビルドする場合は「cache、db」が起動してる必要がある）
 ```
@@ -45,11 +55,8 @@ docker volume prune -f
 docker-compose down --volumes --rmi all
 ```
 
-## 3. Docker Desktopで確認
-2. が完了したらDocker Desktopを開いて   
-Imagesに「redis、postgres、anime-collect-batch、anime-collect-web」
-Containersに「anime-collect」ができる。
-不要になればそれらを削除すればいい。
+コンテナ接続（app_webを接続したいコンテナ名に置き換える）
+```
+docker exec -it app_web sh
+```
 
-## 4. 実際にサイトを開く
-http://localhost:3000/ にアクセスして、ドキュメントディレクトリにある「ドキュメント/実際の画像.png」のようなサイトが表示されれば完了

@@ -9,7 +9,6 @@ COPY app_common ./app_common
 COPY app_web ./app_web
 
 RUN npm ci
-COPY . .
 
 RUN mkdir -p /app/.next/cache/images \
     && chown -R node:node /app/.next

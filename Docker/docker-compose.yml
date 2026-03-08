@@ -59,7 +59,8 @@ services:
       - /app/app_common/node_modules
       - /app/app_common/dist
     command: >
-      sh -c "npx prisma db push --schema=./app_common/prisma/schema.prisma && 
+      sh -c "npx turbo run build --filter=app_common &&
+             npx prisma db push --schema=./app_common/prisma/schema.prisma && 
              npm run dev --workspace=app_batch"
 
   # Webアプリケーション
@@ -87,7 +88,8 @@ services:
       - /app/app_web/node_modules
       - /app/app_common/dist
     command: >
-      sh -c "npm run dev --workspace=app_web"
+      sh -c "npx turbo run build --filter=app_common &&
+             npm run dev --workspace=app_web"
 
 volumes:
   db-store:
