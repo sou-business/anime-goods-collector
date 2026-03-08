@@ -28,8 +28,9 @@ export function useProducts() {
         const errorData = await res.json().catch(() => null); 
         throw new Error(`サーバーエラーが発生しました (${res.status})`);
       }
-
+      
       const data: ProductEntity[] = await res.json();
+      // データ不正チェック
       if (!Array.isArray(data)) {
         throw new Error('サーバーからのレスポンス形式が不正です');
       }
