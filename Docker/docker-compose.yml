@@ -21,7 +21,7 @@ services:
   # Redis キャッシュサーバー
   cache:
     image: redis:8-alpine
-    container_name: app-cache
+    container_name: app_cache
     ports:
       - "6379:6379"
     volumes:
@@ -36,7 +36,7 @@ services:
     build:
       context: ..
       dockerfile: Docker/Dockerfile.batch
-    container_name: app-batch
+    container_name: app_batch
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       BATCH_SCHEDULE: ${BATCH_SCHEDULE:-development}
@@ -59,7 +59,7 @@ services:
       - /app/app_common/node_modules
       - /app/app_common/dist
     command: >
-      sh -c "npx turbo run build --filter=app_common &&
+      sh -c "npx turbo run build --filter=app_common --force &&
              npx prisma db push --schema=./app_common/prisma/schema.prisma && 
              npm run dev --workspace=app_batch"
 
@@ -68,7 +68,7 @@ services:
     build:
       context: ..
       dockerfile: Docker/Dockerfile.web
-    container_name: app-web
+    container_name: app_web
     ports:
       - "${API_PORT:-3000}:3000"
     environment:
@@ -88,7 +88,7 @@ services:
       - /app/app_web/node_modules
       - /app/app_common/dist
     command: >
-      sh -c "npx turbo run build --filter=app_common &&
+      sh -c "npx turbo run build --filter=app_common --force &&
              npm run dev --workspace=app_web"
 
 volumes:

@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
       hostname: host,
     })),
   },
+  webpack: (config: any, { dev }: any) => {
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 200,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
