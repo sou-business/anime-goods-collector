@@ -24,9 +24,11 @@ npm install
 npm run build
 ```
 
+RedisやDBが必要な場合はDocker/README.mdを参照して、コンテナを構築してください。
+
+
 必要に応じて実行するコマンド
 --
-
 app_common/prisma/schema.prismaを修正した場合は、app_common直下で以下の用途に応じたコマンドを実行。
 ```bash
 モジュールに反映したい場合（schema.prismaを基に関連prismaモジュールを生成する）
