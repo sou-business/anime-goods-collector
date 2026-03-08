@@ -59,4 +59,3 @@ docker-compose down --volumes --rmi all
 ```
 docker exec -it app_web sh
 ```
-
