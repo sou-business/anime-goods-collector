@@ -9,7 +9,7 @@ docker desktop を起動
 
 ## 2. powershellで本ディレクトリまで移動して以下を実行
 
-イメージ取得＆コンテナ生成
+イメージ取得＆コンテナビルド＆コンテナ起動
 ```
 docker-compose up -d
 ```
@@ -26,17 +26,17 @@ Containersに「anime-collect」ができる。
 http://localhost:3000/ にアクセスして、ドキュメントディレクトリにある「ドキュメント/実際の画像.png」のようなサイトが表示されれば完了
 
 
-### docker-compose コマンド一覧
+## docker-compose コマンド一覧
 
 コンテナ生成（web、batchを再ビルドする場合は「cache、db」が起動してる必要がある）
 ```
-// 全コンテナ再ビルド
+// 全コンテナ再起動
 docker-compose up -d
 
-// 特定コンテナのみ再ビルド。末尾はコンテナに応じて変更「web, batch, db, cache」
+// 特定コンテナのみ再起動。末尾はコンテナに応じて変更「web, batch, db, cache」
 docker-compose up -d web
 
-// 依存関係を変更した場合、またはdocker設定関連ファイルを変更した場合
+// 全コンテナ再ビルド。依存関係を変更、docker設定関連ファイルを変更した場合等に使用する。
 docker-compose up -d --build
 ```
 
