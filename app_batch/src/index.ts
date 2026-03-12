@@ -18,7 +18,6 @@ function loadConfig(): ScheduleConfig {
 }
 
 async function executeJobs() {
-  await cacheDelete(CACHE_KEYS.PRODUCTS);
   for (const job of jobs) {
     await job();
   }
