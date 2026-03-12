@@ -58,9 +58,11 @@ services:
       - common_node_modules:/app/app_common/node_modules
       - common_dist:/app/app_common/dist
       - batch_node_modules:/app/app_batch/node_modules
+    # commandでcommandでビルドする理由は、失敗時に空のdistボリュームが使われるのを防ぐため。
+    # DBにテーブルを作成するためにprisma:pushもここで実行する。独立性保つならDBコンテナ生成が望ましいが、個人開発でそこまでやるのは過剰なので。
     command: >
       sh -c "npx turbo run build --filter=app_common --force &&
-             npx prisma db push --schema=./app_common/prisma/schema.prisma && 
+             npm run prisma:push && 
              npm run dev --workspace=app_batch"
 
   # Webアプリケーション

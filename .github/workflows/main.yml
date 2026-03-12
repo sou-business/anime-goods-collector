@@ -2,7 +2,10 @@ name: CI/CD Pipeline
 
 on:
   push:
-  pull_request:
+
+env:
+  NODE_VERSION: '22.16'
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anime_collect?schema=public
 
 jobs:
   build:
@@ -11,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.16'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -24,17 +27,36 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-assets
-          path: |
-            **/dist
+          path: '**/dist'
           retention-days: 1
 
-  verify:
+  type-check:
     needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        task: ['type-check', 'test']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download Build Assets
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
+
+      - name: Generate Prisma Client
+        run: npm run prisma:generate
+
+      - name: Run type-check
+        run: npm run type-check
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
     services:
       db:
         image: postgres:14
@@ -64,7 +86,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.16'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
@@ -76,18 +98,13 @@ jobs:
           name: build-assets
 
       - name: Generate Prisma Client
-        run: npx prisma generate --schema=./app_common/prisma/schema.prisma
+        run: npm run prisma:generate
 
       - name: Apply DB schema
-        # type-check タスクではDBへの接続不要なのでtestのみ実行
-        if: matrix.task == 'test'
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anime_collect?schema=public
-        run: npx prisma db push --schema=./app_common/prisma/schema.prisma
+        run: npm run prisma:push
 
-      - name: Run ${{ matrix.task }}
+      - name: Run tests
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/anime_collect?schema=public
           CACHE_HOST: localhost
           CACHE_PORT: 6379
-        run: npm run ${{ matrix.task }}
+        run: npm run test

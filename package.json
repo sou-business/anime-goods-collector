@@ -13,7 +13,9 @@
     "build": "turbo run build",
     "type-check": "npm run type-check --workspaces",
     "test": "npm run test:once --workspaces --if-present",
-    "test:watch": "npm run test:watch --workspaces --if-present"
+    "test:watch": "npm run test:watch --workspaces --if-present",
+    "prisma:generate": "prisma generate --schema=./app_common/prisma/schema.prisma",
+    "prisma:push": "npx prisma db push --schema=./app_common/prisma/schema.prisma"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
@@ -38,5 +40,5 @@
   },
   "engines": {
     "node": "^22.16.0"
-  }
+    }
 }
