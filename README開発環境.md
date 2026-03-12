@@ -24,7 +24,7 @@ npm install
 npm run build
 ```
 
-RedisやDBが必要な場合はDocker/README.mdを参照して、コンテナを構築してください。
+RedisやDBが必要な場合はDocker/README.mdを参照して、コンテナを構築する。
 
 
 必要に応じて実行するコマンド
