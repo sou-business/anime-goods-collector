@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import { ProductsRepository } from '@/infrastructure/repository/ProductsRepository.js';
 import * as productsTable from '@/infrastructure/db/productsTable.js';
-import { cacheGet, cacheSet, cacheDelete } from '@/infrastructure/cache/cacheService.js';
 import { CACHE_KEYS } from '@/infrastructure/cache/sharedCacheKeys.js';
 import { ProductEntity } from '@/domain/entity/ProductEntity.js';
+import { cacheGet, cacheSet, cacheDelete } from '@/utils/cacheClient.js';
 
 const BASE_URL = 'https://example.com';
 
@@ -30,6 +30,20 @@ function findByDetailUrl<T extends { detailUrl: string }>(
   const found = products.find((p) => p.detailUrl === detailUrl);
   if (!found) throw new Error(`商品が見つかりません: ${detailUrl}`);
   return found;
+}
+
+async function getProductsFromCache() {
+  return cacheGet<Record<string, ProductEntity>>(CACHE_KEYS.PRODUCTS);
+}
+
+function expectProductMatch(
+  actual: { detailUrl: string; imageUrl: string; title: string; price: number | null },
+  expected: typeof PRODUCT_A | typeof PRODUCT_B
+): void {
+  expect(actual.detailUrl).toBe(expected.detailUrl);
+  expect(actual.imageUrl).toBe(expected.imageUrl);
+  expect(actual.title).toBe(expected.title);
+  expect(actual.price).toBe(expected.price);
 }
 
 describe('ProductsRepository (integration)', () => {
@@ -60,8 +74,7 @@ describe('ProductsRepository (integration)', () => {
       const result: ProductEntity[] = await repository.findAll();
 
       expect(result).toHaveLength(1);
-      expect(result[0].title).toBe(PRODUCT_A.title);
-      expect(result[0].price).toBe(PRODUCT_A.price);
+      expectProductMatch(result[0], PRODUCT_A);
     });
 
     it('キャッシュに商品データがない場合は、DBから商品一覧を取得できること', async () => {
@@ -83,14 +96,8 @@ describe('ProductsRepository (integration)', () => {
       const result = await repository.findAll();
 
       expect(result).toHaveLength(2);
-      const productA = findByDetailUrl(result, PRODUCT_A.detailUrl);
-      const productB = findByDetailUrl(result, PRODUCT_B.detailUrl);
-      expect(productA.title).toBe(PRODUCT_A.title);
-      expect(productA.price).toBe(PRODUCT_A.price);
-      expect(productA.imageUrl).toBe(PRODUCT_A.imageUrl);
-      expect(productB.title).toBe(PRODUCT_B.title);
-      expect(productB.price).toBe(PRODUCT_B.price);
-      expect(productB.imageUrl).toBe(PRODUCT_B.imageUrl);
+      expectProductMatch(findByDetailUrl(result, PRODUCT_A.detailUrl), PRODUCT_A);
+      expectProductMatch(findByDetailUrl(result, PRODUCT_B.detailUrl), PRODUCT_B);
     });
 
     it('商品がない場合、空を返すこと', async () => {
@@ -98,7 +105,6 @@ describe('ProductsRepository (integration)', () => {
 
       expect(result).toHaveLength(0);
     });
-
   });
 
   describe('saveProducts', () => {
@@ -112,22 +118,14 @@ describe('ProductsRepository (integration)', () => {
 
       const fromDb = await productsTable.findAllProducts();
       expect(fromDb).toHaveLength(2);
-      const productA = findByDetailUrl(fromDb, PRODUCT_A.detailUrl);
-      expect(productA.title).toBe(PRODUCT_A.title);
-      expect(productA.price).toBe(PRODUCT_A.price);
-      const productB = findByDetailUrl(fromDb, PRODUCT_B.detailUrl);
-      expect(productB.title).toBe(PRODUCT_B.title);
-      expect(productB.price).toBe(PRODUCT_B.price);
+      expectProductMatch(findByDetailUrl(fromDb, PRODUCT_A.detailUrl), PRODUCT_A);
+      expectProductMatch(findByDetailUrl(fromDb, PRODUCT_B.detailUrl), PRODUCT_B);
 
-      const fromCache = await cacheGet<Record<string, { title: string; price: number | null }>>(CACHE_KEYS.PRODUCTS);
+      const fromCache = await getProductsFromCache();
       expect(fromCache).not.toBeNull();
       expect(Object.keys(fromCache!).length).toBe(2);
-      const cachedProductA = fromCache![PRODUCT_A.detailUrl];
-      expect(cachedProductA.title).toBe(PRODUCT_A.title);
-      expect(cachedProductA.price).toBe(PRODUCT_A.price);
-      const cachedProductB = fromCache![PRODUCT_B.detailUrl];
-      expect(cachedProductB.title).toBe(PRODUCT_B.title);
-      expect(cachedProductB.price).toBe(PRODUCT_B.price);
+      expectProductMatch(fromCache![PRODUCT_A.detailUrl], PRODUCT_A);
+      expectProductMatch(fromCache![PRODUCT_B.detailUrl], PRODUCT_B);
     });
 
     it('商品がすでにキャッシュに存在している場合も、既存の商品を残したまま新しい商品をキャッシュに追加できること', async () => {
@@ -146,12 +144,11 @@ describe('ProductsRepository (integration)', () => {
       ];
       await repository.saveProducts(newProducts);
 
-      const fromCache = await cacheGet<Record<string, { title: string }>>(CACHE_KEYS.PRODUCTS);
+      const fromCache = await getProductsFromCache();
+      expect(fromCache).not.toBeNull();
       expect(Object.keys(fromCache!).length).toBe(2);
-      const cachedProductA = fromCache![PRODUCT_A.detailUrl];
-      const cachedProductB = fromCache![PRODUCT_B.detailUrl];
-      expect(cachedProductA.title).toBe(PRODUCT_A.title);
-      expect(cachedProductB.title).toBe(PRODUCT_B.title);
+      expectProductMatch(fromCache![PRODUCT_A.detailUrl], PRODUCT_A);
+      expectProductMatch(fromCache![PRODUCT_B.detailUrl], PRODUCT_B);
     });
 
     it('商品データが空の場合は何もしないこと', async () => {
@@ -159,7 +156,8 @@ describe('ProductsRepository (integration)', () => {
 
       const fromDb = await productsTable.findAllProducts();
       expect(fromDb).toHaveLength(0);
-      const fromCache = await cacheGet<Record<string, unknown>>(CACHE_KEYS.PRODUCTS);
+
+      const fromCache = await getProductsFromCache();
       expect(fromCache).toBeNull();
     });
   });
