@@ -1,69 +1,27 @@
 import winston from 'winston';
-import fs from 'fs';
-import path from 'path';
 
-const LOG_TO_FILE = process.env.LOG_TO_FILE === 'true';
-const LOG_DIR = process.env.LOG_DIR || './logs';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const LOG_LEVEL = process.env.LOG_LEVEL || (NODE_ENV === 'development' ? 'debug' : 'info');
 
-const baseFormat = winston.format.combine(
-  winston.format.errors({ stack: true }), // stack 情報を扱う
-  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  winston.format.splat()
-);
-
 const consoleFormat = winston.format.combine(
+  winston.format.errors({ stack: true }),
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.splat(),
   winston.format.colorize(),
-  baseFormat,
   winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
     const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
     return `[${timestamp}] ${level}: ${stack || message}${metaStr}`;
   })
 );
 
-const fileFormat = winston.format.combine(
-  baseFormat,
-  winston.format.json()
-);
-
-const transportsArr: winston.transport[] = [];
-
-if (LOG_TO_FILE) {
-  // ディレクトリがなければ作る
-  try {
-    fs.mkdirSync(LOG_DIR, { recursive: true });
-  } catch (e) {
-    // ディレクトリ作成失敗はコンソールにフォールバック
-    // eslint-disable-next-line no-console
-    console.warn('Could not create log directory, falling back to console logging', e);
-  }
-
-  transportsArr.push(
-    new winston.transports.File({
-      filename: path.join(LOG_DIR, 'app.log'),
-      level: LOG_LEVEL,
-      format: fileFormat,
-      maxsize: 10 * 1024 * 1024, // 10MB ローテートしやすく
-      maxFiles: 5
-    })
-  );
-} else {
-  transportsArr.push(
-    new winston.transports.Console({
-      level: LOG_LEVEL,
-      format: NODE_ENV === 'development' ? consoleFormat : fileFormat
-    })
-  );
-}
-
 const winstonLogger = winston.createLogger({
   level: LOG_LEVEL,
-  transports: transportsArr,
+  transports: [
+    new winston.transports.Console({ format: consoleFormat })
+  ],
   exitOnError: false
 });
 
-// 簡易ロガー
 export const logger = {
   info: (message: string, meta?: Record<string, unknown>) => winstonLogger.info(message, meta),
   warn: (message: string, meta?: Record<string, unknown>) => winstonLogger.warn(message, meta),
@@ -74,10 +32,7 @@ export const logger = {
         error: {
           message: error.message,
           stack: error.stack,
-          // (error as any) を避けるため、'cause' in error で存在確認を行います
-          ...(typeof error === 'object' && error !== null && 'cause' in error
-            ? { cause: (error as { cause?: unknown }).cause }
-            : {}),
+          ...('cause' in error ? { cause: (error as { cause?: unknown }).cause } : {}),
         },
         ...meta,
       });
