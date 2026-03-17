@@ -24,9 +24,5 @@
     "@types/react-dom": "^19",
     "eslint-plugin-react": "^7.37.5",
     "tailwindcss": "^4"
-  },
-  "optionalDependencies": {
-    "@tailwindcss/oxide-linux-x64-gnu": "^4",
-    "lightningcss-linux-x64-gnu": "^1"
   }
 }
