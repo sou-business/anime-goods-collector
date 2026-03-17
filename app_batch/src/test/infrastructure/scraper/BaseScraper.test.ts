@@ -27,8 +27,8 @@ class TestScraper extends BaseScraper {
   readonly extractors: ProductExtractors = {
     title: ($item) => $item.find('.title').text().trim(),
     price: ($item) => $item.find('.price').text(),
-    detailPath: ($item) => $item.find('.detail').attr('href'),
-    imagePath: ($item) => $item.find('.img').attr('src'),
+    detailPath: ($item) => $item.find('.detail').attr('href') ?? '',
+    imagePath: ($item) => $item.find('.img').attr('src') ?? '',
   };
 }
 

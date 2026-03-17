@@ -1,12 +1,12 @@
-import { BaseScraper, ProductExtractors } from "./BaseScraper.js";
+import { BaseScraper, ProductExtractors } from "@/infrastructure/scraper/BaseScraper.js";
 
 export class AmnibusScraper extends BaseScraper {
   readonly siteName = 'Amnibus';
   readonly itemSelector = '.itemCard';
   readonly extractors: ProductExtractors = {
-    title: ($item) => $item.find('.itemCard__desc--title').text().trim(),
-    price: ($item) => $item.find('.itemCard__price--incTax').text(),
-    detailPath: ($item) => $item.attr('href') ?? '',
-    imagePath: ($item) => $item.find('.itemCard__img img').attr('src') ?? '',
+    title: ($item): string => $item.find('.itemCard__desc--title').text().trim(),
+    price: ($item): string => $item.find('.itemCard__price--incTax').text(),
+    detailPath: ($item): string => $item.attr('href') ?? '',
+    imagePath: ($item): string => $item.find('.itemCard__img img').attr('src') ?? '',
   };
 }
