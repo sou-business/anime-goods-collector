@@ -1,4 +1,9 @@
-
+export type ProductProps = {
+    detailUrl: string;
+    imageUrl: string;
+    title: string;
+    price: number;
+}
 
 export class ProductEntity {
     constructor(
@@ -15,34 +20,12 @@ export class ProductEntity {
         if (price < 0) throw new Error('priceは0以上である必要があります');
     }
 
-    static reconstruct(product: { detailUrl: string; imageUrl: string; title: string; price: number }): ProductEntity {
+    static reconstruct(product: ProductProps): ProductEntity {
         return new ProductEntity(
             product.detailUrl,
             product.imageUrl,
             product.title,
             product.price
-        );
-    }
-
-    /**
-   * 外部データ（Raw Data）をドメインモデルとして「構成」する
-   */
-    static fromRawData(
-        baseUrl: string,
-        detailPath: string,
-        imagePath: string,
-        rawTitle: string,
-        rawPrice: string
-    ): ProductEntity {
-        const detailUrl = new URL(detailPath, baseUrl).href;
-        const imageUrl = new URL(imagePath, baseUrl).href;
-        const price = parseInt(rawPrice.replace(/[^\d]/g, ''));
-
-        return new ProductEntity(
-            detailUrl,
-            imageUrl,
-            rawTitle,
-            price
         );
     }
 

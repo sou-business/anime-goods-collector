@@ -1,9 +1,10 @@
 import type { Element } from 'domhandler';
+import * as cheerio from 'cheerio';
 import type { IProductCollector } from 'app_common/server';
 import { ProductEntity } from 'app_common/server';
 import { fetchExternal } from 'app_common/server';
 import { logger } from 'app_common/server';
-import * as cheerio from 'cheerio';
+import { buildProductEntity } from '@/infrastructure/factory/ProductFactory.js';
 
 type ExtractionLogic = ($item: cheerio.Cheerio<any>) => string;
 export interface ProductExtractors {
@@ -38,7 +39,7 @@ export abstract class BaseScraper implements IProductCollector {
                 const title = this.extractors.title($item);
                 const price = this.extractors.price($item);
 
-                products.push(ProductEntity.fromRawData(url, detailPath, imagePath, title, price));
+                products.push(buildProductEntity(url, detailPath, imagePath, title, price));
 
             } catch (error) {
                 logger.error('アイテム解析失敗', error);
